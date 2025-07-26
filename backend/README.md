@@ -25,17 +25,27 @@ A Django REST Framework backend for the StartupQuest application.
    pip install -r requirements.txt
    ```
 
-3. **Run migrations:**
+3. **Set up environment variables:**
+   ```bash
+   # Copy the example environment file
+   cp .env.example .env
+   
+   # Edit .env and add your API keys
+   # GEMINI_API_KEY=your_gemini_api_key_here
+   # SECRET_KEY=your_django_secret_key_here
+   ```
+
+4. **Run migrations:**
    ```bash
    python manage.py migrate
    ```
 
-4. **Create superuser (optional):**
+5. **Create superuser (optional):**
    ```bash
    python manage.py createsuperuser
    ```
 
-5. **Run the development server:**
+6. **Run the development server:**
    ```bash
    python manage.py runserver
    ```
