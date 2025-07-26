@@ -6,6 +6,11 @@ import Profile from "../components/Profile";
 import FriendsCollabChat from "../components/FriendsCollabChat";
 import Explore from "../components/Explore";
 import Chatbot from "../components/Chatbot";
+import Achievements from "../components/Achievements";
+import DailyChallenges from "../components/DailyChallenges";
+import PowerUps from "../components/PowerUps";
+import Leaderboard from "../components/Leaderboard";
+import MilestoneCelebrations from "../components/MilestoneCelebrations";
 import { mockPhases, mockBadges, mockUser, mockFriends } from "../mockData";
 
 const Index = () => {
@@ -29,6 +34,14 @@ const Index = () => {
     const saved = localStorage.getItem("startupQuestUser");
     return saved ? JSON.parse(saved) : mockUser;
   });
+
+  // Handle username update
+  const handleUsernameUpdate = (newUsername) => {
+    setUserStats(prev => ({
+      ...prev,
+      username: newUsername
+    }));
+  };
 
   // Persist to localStorage
   useEffect(() => {
@@ -140,6 +153,44 @@ const Index = () => {
     });
   };
 
+  // Handle daily challenge completion
+  const handleDailyChallengeComplete = (xpReward) => {
+    setUserProgress(prev => {
+      let { userXP, userLevel, maxXP } = prev;
+      let totalXP = userXP + xpReward;
+      let newLevel = userLevel;
+      let newMaxXP = maxXP;
+      while (totalXP >= newMaxXP && newLevel < 10) {
+        totalXP -= newMaxXP;
+        newLevel += 1;
+        newMaxXP += 200;
+      }
+      return { userXP: totalXP, userLevel: newLevel, maxXP: newMaxXP };
+    });
+  };
+
+  // Handle power-up activation
+  const handlePowerUpActivation = (xpChange) => {
+    setUserProgress(prev => {
+      let { userXP, userLevel, maxXP } = prev;
+      let totalXP = userXP + xpChange;
+      let newLevel = userLevel;
+      let newMaxXP = maxXP;
+      
+      // Handle level changes
+      while (totalXP >= newMaxXP && newLevel < 10) {
+        totalXP -= newMaxXP;
+        newLevel += 1;
+        newMaxXP += 200;
+      }
+      
+      // Ensure XP doesn't go negative
+      if (totalXP < 0) totalXP = 0;
+      
+      return { userXP: totalXP, userLevel: newLevel, maxXP: newMaxXP };
+    });
+  };
+
   const renderTabContent = () => {
     const { userLevel, userXP, maxXP } = userProgress;
     switch (activeTab) {
@@ -163,6 +214,31 @@ const Index = () => {
         if (!currentPhase) return null;
         return <PhaseContent phase={activeTab} phaseData={currentPhase} onMarkPhaseComplete={handlePhaseComplete} onTaskComplete={handleTaskComplete} />;
       }
+      case "achievements":
+        return <Achievements 
+          userProgress={userProgress}
+          userStats={userStats}
+          phases={phases}
+          badges={badges}
+        />;
+      case "daily":
+        return <DailyChallenges 
+          userProgress={userProgress}
+          userStats={userStats}
+          phases={phases}
+          onCompleteChallenge={handleDailyChallengeComplete}
+        />;
+      case "powerups":
+        return <PowerUps 
+          userProgress={userProgress}
+          onActivatePowerUp={handlePowerUpActivation}
+        />;
+      case "leaderboard":
+        return <Leaderboard 
+          userProgress={userProgress}
+          userStats={userStats}
+          phases={phases}
+        />;
       case "profile":
         return <Profile
           {...userStats}
@@ -170,6 +246,7 @@ const Index = () => {
           xp={userXP}
           maxXP={maxXP}
           badges={badges}
+          onUsernameUpdate={handleUsernameUpdate}
         />;
       case "friends":
         return <FriendsCollabChat user={userStats} friends={mockFriends} />;
@@ -203,6 +280,13 @@ const Index = () => {
       {/* FriendsCollabChat is rendered as a tab, not a floating button */}
       {/* Floating Chatbot button and modal */}
       <Chatbot isOpen={isChatbotOpen} onToggle={() => setIsChatbotOpen(open => !open)} />
+      
+      {/* Milestone Celebrations */}
+      <MilestoneCelebrations 
+        userProgress={userProgress}
+        userStats={userStats}
+        phases={phases}
+      />
     </div>
   );
 };

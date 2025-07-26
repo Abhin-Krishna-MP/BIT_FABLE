@@ -1,5 +1,5 @@
 // Navigation.jsx
-import { Home, Target, Rocket, DollarSign, MessageSquare, User as UserIcon, Compass, Bot, TrendingUp, Users, Clock, Lock } from "lucide-react";
+import { Home, Target, Rocket, DollarSign, MessageSquare, User as UserIcon, Compass, Bot, TrendingUp, Users, Clock, Lock, Trophy, Zap, Calendar, Crown } from "lucide-react";
 
 const tabs = [
   { id: 'dashboard', label: 'Dashboard', icon: Home },
@@ -10,6 +10,10 @@ const tabs = [
   { id: 'feedback', label: 'Feedback & Iterate', icon: MessageSquare },
   { id: 'monetization', label: 'Monetization', icon: DollarSign },
   { id: 'scale', label: 'Pitch & Scale', icon: Users },
+  { id: 'achievements', label: 'Achievements', icon: Trophy },
+  { id: 'daily', label: 'Daily', icon: Calendar },
+  { id: 'powerups', label: 'Power-ups', icon: Zap },
+  { id: 'leaderboard', label: 'Leaderboard', icon: Crown },
   { id: 'profile', label: 'Profile', icon: UserIcon },
   { id: 'friends', label: 'Friends', icon: Users },
   { id: 'explore', label: 'Explore', icon: Compass }
