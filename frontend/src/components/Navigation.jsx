@@ -1,5 +1,5 @@
 // Navigation.jsx
-import { Home, Target, Rocket, DollarSign, MessageSquare, User as UserIcon, Compass, Bot, TrendingUp, Users, Clock, Lock, Trophy, Zap, Calendar, Crown } from "lucide-react";
+import { Home, Target, Rocket, DollarSign, MessageSquare, User as UserIcon, Compass, Bot, TrendingUp, Users, Clock, Lock, Trophy, Zap, Calendar, Crown, LogOut } from "lucide-react";
 
 const tabs = [
   { id: 'dashboard', label: 'Dashboard', icon: Home },
@@ -21,9 +21,20 @@ const tabs = [
 
 const phaseTabIds = ['ideation', 'validation', 'mvp', 'launch', 'feedback', 'monetization', 'scale'];
 
-const Navigation = ({ activeTab, onTabChange, phases = [], currentPhaseIndex = 0 }) => {
+const Navigation = ({ activeTab, onTabChange, phases = [], currentPhaseIndex = 0, userLevel, userXP, onLogout }) => {
   return (
     <nav className="navigation">
+      <div className="nav-header">
+        <div className="nav-logo">
+          <span className="logo-icon">🚀</span>
+          <h2>StartupQuest</h2>
+        </div>
+        <div className="nav-user-info">
+          <div className="user-level">Level {userLevel}</div>
+          <div className="user-xp">{userXP} XP</div>
+        </div>
+      </div>
+
       <div className="nav-items">
         {tabs.map(({ id, label, icon: Icon }) => {
           const isPhaseTab = phaseTabIds.includes(id);
@@ -49,6 +60,13 @@ const Navigation = ({ activeTab, onTabChange, phases = [], currentPhaseIndex = 0
             </button>
           );
         })}
+      </div>
+
+      <div className="nav-footer">
+        <button className="logout-btn" onClick={onLogout}>
+          <LogOut size={20} />
+          <span>Logout</span>
+        </button>
       </div>
     </nav>
   );

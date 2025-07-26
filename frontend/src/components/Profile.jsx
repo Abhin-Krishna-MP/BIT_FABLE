@@ -1,7 +1,8 @@
 // Profile.jsx
 import { useState, useEffect } from 'react';
-import { User as UserIcon, Award, Trophy, Target, TrendingUp, Wallet, AlertCircle, CheckCircle } from 'lucide-react';
+import { User as UserIcon, Award, Trophy, Target, TrendingUp, Wallet, AlertCircle, CheckCircle, HelpCircle } from 'lucide-react';
 import XPBar from "./XPBar";
+import MetaMaskGuide from "./MetaMaskGuide";
 import { 
   getMyUser, 
   setUser, 
@@ -13,7 +14,7 @@ import {
   testContractConnection
 } from '../ethereum/xpContract';
 
-const Profile = ({ username, level, xp, maxXP, badges, completedPhases, ideasShared, upvotesGiven, onUsernameUpdate }) => {
+const Profile = ({ username, level, xp, maxXP, badges = [], completedPhases = [], ideasShared = 0, upvotesGiven = 0, onUsernameUpdate }) => {
   // Ethereum state
   const [walletConnected, setWalletConnected] = useState(false);
   const [walletAddress, setWalletAddress] = useState('');
@@ -21,29 +22,56 @@ const Profile = ({ username, level, xp, maxXP, badges, completedPhases, ideasSha
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
+  const [ethereumAvailable, setEthereumAvailable] = useState(false);
+  const [showMetaMaskGuide, setShowMetaMaskGuide] = useState(false);
   
   // Form state for username update
   const [newUsername, setNewUsername] = useState('');
   const [showUsernameForm, setShowUsernameForm] = useState(false);
 
-  const earnedBadges = badges.filter(b => b.earned);
+  const earnedBadges = (badges || []).filter(b => b && b.earned);
 
   // Check MetaMask connection on component mount
   useEffect(() => {
-    checkConnection();
-    
-    // Listen for account changes
-    onAccountChange(() => {
-      checkConnection();
-    });
-    
-    // Listen for network changes
-    onNetworkChange(() => {
-      checkConnection();
-    });
+    initializeEthereum();
   }, []);
 
+  const initializeEthereum = async () => {
+    try {
+      // Check if MetaMask is available
+      if (typeof window.ethereum !== 'undefined') {
+        setEthereumAvailable(true);
+        
+        // Check if already connected
+        const isConnected = await checkMetaMaskConnection();
+        setWalletConnected(isConnected);
+        
+        if (isConnected) {
+          await loadOnChainData();
+        }
+        
+        // Listen for account changes
+        onAccountChange(() => {
+          checkConnection();
+        });
+        
+        // Listen for network changes
+        onNetworkChange(() => {
+          checkConnection();
+        });
+      } else {
+        setEthereumAvailable(false);
+        console.log('MetaMask not available - running in web-only mode');
+      }
+    } catch (error) {
+      console.error('Error initializing Ethereum:', error);
+      setEthereumAvailable(false);
+    }
+  };
+
   const checkConnection = async () => {
+    if (!ethereumAvailable) return;
+    
     try {
       setError('');
       const isConnected = await checkMetaMaskConnection();
@@ -62,6 +90,11 @@ const Profile = ({ username, level, xp, maxXP, badges, completedPhases, ideasSha
   };
 
   const connectWallet = async () => {
+    if (!ethereumAvailable) {
+      setError('MetaMask is not available. Please install MetaMask to use blockchain features.');
+      return;
+    }
+    
     try {
       setLoading(true);
       setError('');
@@ -78,6 +111,8 @@ const Profile = ({ username, level, xp, maxXP, badges, completedPhases, ideasSha
   };
 
   const loadOnChainData = async () => {
+    if (!ethereumAvailable || !walletConnected) return;
+    
     try {
       setLoading(true);
       setError('');
@@ -93,8 +128,11 @@ const Profile = ({ username, level, xp, maxXP, badges, completedPhases, ideasSha
       }
     } catch (error) {
       console.error('Error loading on-chain data:', error);
-      // Don't show error for unregistered users, just set data to null
-      if (error.message.includes('User not registered') || error.code === 'BAD_DATA') {
+      // Don't show error for unregistered users or connection issues
+      if (error.message.includes('User not registered') || 
+          error.code === 'BAD_DATA' || 
+          error.message.includes('circuit breaker') ||
+          error.message.includes('missing revert data')) {
         setOnChainData(null);
       } else {
         setError('Failed to load on-chain data: ' + error.message);
@@ -110,19 +148,19 @@ const Profile = ({ username, level, xp, maxXP, badges, completedPhases, ideasSha
       return;
     }
     
+    if (!ethereumAvailable || !walletConnected) {
+      setError('MetaMask is not available or not connected. Cannot update username on blockchain.');
+      return;
+    }
+
     try {
       setLoading(true);
       setError('');
       
-      if (walletConnected) {
-        // Update on blockchain (this will register the user if not already registered)
-        await setUser(newUsername);
-        await loadOnChainData();
-        setSuccess('Username registered/updated on blockchain successfully!');
-      } else {
-        // Update locally only
-        setSuccess('Username updated locally! Connect wallet to sync on blockchain.');
-      }
+      // Update on blockchain (this will register the user if not already registered)
+      await setUser(newUsername);
+      await loadOnChainData();
+      setSuccess('Username registered/updated on blockchain successfully!');
       
       // Always update locally
       if (onUsernameUpdate) {
@@ -138,6 +176,11 @@ const Profile = ({ username, level, xp, maxXP, badges, completedPhases, ideasSha
   };
 
   const handleUpdateXP = async (amount) => {
+    if (!ethereumAvailable || !walletConnected) {
+      setError('MetaMask is not available or not connected. Cannot update XP on blockchain.');
+      return;
+    }
+
     try {
       setLoading(true);
       setError('');
@@ -152,6 +195,11 @@ const Profile = ({ username, level, xp, maxXP, badges, completedPhases, ideasSha
   };
 
   const handleTestContractConnection = async () => {
+    if (!ethereumAvailable || !walletConnected) {
+      setError('MetaMask is not available or not connected. Cannot test contract connection.');
+      return;
+    }
+
     try {
       setLoading(true);
       setError('');
@@ -206,40 +254,68 @@ const Profile = ({ username, level, xp, maxXP, badges, completedPhases, ideasSha
     <div className="profile-container">
       {/* Wallet Connection Section */}
       <div className="wallet-section">
-        {!walletConnected ? (
-          <div className="wallet-not-connected">
-            <AlertCircle className="wallet-icon" />
-            <div className="wallet-info">
-              <h3>Connect Your Wallet</h3>
-              <p>Connect MetaMask to sync your progress on-chain</p>
-            </div>
-            <button 
-              className="btn-quest" 
-              onClick={connectWallet}
-              disabled={loading}
-            >
-              <Wallet size={16} />
-              {loading ? 'Connecting...' : 'Connect Wallet'}
-            </button>
-          </div>
+                 {!ethereumAvailable ? (
+           <div className="wallet-not-connected">
+             <AlertCircle className="wallet-icon" />
+             <div className="wallet-info">
+               <h3>MetaMask Not Available</h3>
+               <p>Please install MetaMask to use blockchain features.</p>
+             </div>
+             <div className="wallet-actions">
+               <button 
+                 className="btn-quest" 
+                 onClick={() => window.open('https://metamask.io/download/', '_blank')}
+               >
+                 <Wallet size={16} />
+                 Install MetaMask
+               </button>
+               <button 
+                 className="btn-outline" 
+                 onClick={() => setShowMetaMaskGuide(true)}
+               >
+                 <HelpCircle size={16} />
+                 Setup Guide
+               </button>
+             </div>
+           </div>
         ) : (
-          <div className="wallet-connected">
-            <CheckCircle className="wallet-icon" />
-            <div className="wallet-info">
-              <h3>Wallet Connected</h3>
-              <p className="wallet-address">{walletAddress}</p>
-              {!isUserRegistered && (
-                <p className="wallet-status">Not registered on-chain yet. Click the username edit button above to register!</p>
-              )}
-            </div>
-            <button 
-              className="btn-outline" 
-              onClick={loadOnChainData}
-              disabled={loading}
-            >
-              {loading ? 'Loading...' : 'Refresh Data'}
-            </button>
-          </div>
+          <>
+            {!walletConnected ? (
+              <div className="wallet-not-connected">
+                <AlertCircle className="wallet-icon" />
+                <div className="wallet-info">
+                  <h3>Connect Your Wallet</h3>
+                  <p>Connect MetaMask to sync your progress on-chain</p>
+                </div>
+                <button 
+                  className="btn-quest" 
+                  onClick={connectWallet}
+                  disabled={loading}
+                >
+                  <Wallet size={16} />
+                  {loading ? 'Connecting...' : 'Connect Wallet'}
+                </button>
+              </div>
+            ) : (
+              <div className="wallet-connected">
+                <CheckCircle className="wallet-icon" />
+                <div className="wallet-info">
+                  <h3>Wallet Connected</h3>
+                  <p className="wallet-address">{walletAddress}</p>
+                  {!isUserRegistered && (
+                    <p className="wallet-status">Not registered on-chain yet. Click the username edit button above to register!</p>
+                  )}
+                </div>
+                <button 
+                  className="btn-outline" 
+                  onClick={loadOnChainData}
+                  disabled={loading}
+                >
+                  {loading ? 'Loading...' : 'Refresh Data'}
+                </button>
+              </div>
+            )}
+          </>
         )}
       </div>
 
@@ -421,6 +497,11 @@ const Profile = ({ username, level, xp, maxXP, badges, completedPhases, ideasSha
           )}
         </div>
       </div>
+
+      {/* MetaMask Guide Modal */}
+      {showMetaMaskGuide && (
+        <MetaMaskGuide onClose={() => setShowMetaMaskGuide(false)} />
+      )}
     </div>
   );
 };

@@ -13,11 +13,11 @@ import Leaderboard from "../components/Leaderboard";
 import MilestoneCelebrations from "../components/MilestoneCelebrations";
 import { mockPhases, mockBadges, mockUser, mockFriends } from "../mockData";
 
-const Index = () => {
+const Index = ({ user, onLogout }) => {
   const [activeTab, setActiveTab] = useState("dashboard");
   const [userProgress, setUserProgress] = useState(() => {
     const saved = localStorage.getItem("startupQuestUserProgress");
-    return saved ? JSON.parse(saved) : { userLevel: 1, userXP: 0, maxXP: 112 };
+    return saved ? JSON.parse(saved) : { userLevel: user?.level || 1, userXP: user?.xp || 0, maxXP: 112 };
   });
   const [isChatbotOpen, setIsChatbotOpen] = useState(false);
 
@@ -32,8 +32,23 @@ const Index = () => {
   });
   const [userStats, setUserStats] = useState(() => {
     const saved = localStorage.getItem("startupQuestUser");
-    return saved ? JSON.parse(saved) : mockUser;
+    return saved ? JSON.parse(saved) : { ...mockUser, username: user?.username || mockUser.username };
   });
+
+  // Update user stats when user prop changes
+  useEffect(() => {
+    if (user) {
+      setUserProgress(prev => ({
+        ...prev,
+        userLevel: user.level || 1,
+        userXP: user.xp || 0
+      }));
+      setUserStats(prev => ({
+        ...prev,
+        username: user.username
+      }));
+    }
+  }, [user]);
 
   // Handle username update
   const handleUsernameUpdate = (newUsername) => {
@@ -41,6 +56,12 @@ const Index = () => {
       ...prev,
       username: newUsername
     }));
+  };
+
+  const handleLogout = () => {
+    if (onLogout) {
+      onLogout();
+    }
   };
 
   // Persist to localStorage
@@ -275,6 +296,9 @@ const Index = () => {
         onTabChange={setActiveTab}
         phases={phases}
         currentPhaseIndex={currentPhaseIndex}
+        userLevel={userProgress.userLevel}
+        userXP={userProgress.userXP}
+        onLogout={handleLogout}
       />
       <main>{renderTabContent()}</main>
       {/* FriendsCollabChat is rendered as a tab, not a floating button */}
@@ -282,7 +306,7 @@ const Index = () => {
       <Chatbot isOpen={isChatbotOpen} onToggle={() => setIsChatbotOpen(open => !open)} />
       
       {/* Milestone Celebrations */}
-      <MilestoneCelebrations 
+      <MilestoneCelebrations
         userProgress={userProgress}
         userStats={userStats}
         phases={phases}

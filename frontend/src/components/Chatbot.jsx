@@ -1,6 +1,7 @@
 // Chatbot.jsx
 import { useState, useRef, useEffect } from "react";
 import { Bot, Send, X, MessageCircle, Sparkles } from "lucide-react";
+import { apiService } from '../services/api';
 
 const Chatbot = ({ isOpen, onToggle }) => {
   const [messages, setMessages] = useState([
@@ -13,9 +14,11 @@ const Chatbot = ({ isOpen, onToggle }) => {
   ]);
   const [inputText, setInputText] = useState('');
   const [isTyping, setIsTyping] = useState(false);
+  const [error, setError] = useState('');
   const messagesEndRef = useRef(null);
 
-  const botResponses = [
+  // Fallback responses if API fails
+  const fallbackResponses = [
     "🎯 For validation, start with the 'Mom Test' - ask about problems, not solutions. Focus on understanding customer pain points deeply.",
     "🚀 When building your MVP, remember: minimum means essential features only. What's the smallest version that proves your core hypothesis?",
     "📈 Product-market fit happens when customers are pulling your product from you, not when you're pushing it to them.",
@@ -33,7 +36,7 @@ const Chatbot = ({ isOpen, onToggle }) => {
     scrollToBottom();
   }, [messages]);
 
-  const handleSendMessage = () => {
+  const handleSendMessage = async () => {
     if (!inputText.trim() || isTyping) return;
 
     const userMessage = {
@@ -44,19 +47,36 @@ const Chatbot = ({ isOpen, onToggle }) => {
     };
 
     setMessages(prev => [...prev, userMessage]);
+    const currentInput = inputText;
     setInputText('');
     setIsTyping(true);
+    setError('');
 
-    setTimeout(() => {
+    try {
+      const response = await apiService.sendChatMessage(currentInput);
+      
       const botMessage = {
         id: (Date.now() + 1).toString(),
-        text: botResponses[Math.floor(Math.random() * botResponses.length)],
+        text: response.message,
         isBot: true,
         timestamp: new Date()
       };
       setMessages(prev => [...prev, botMessage]);
+    } catch (error) {
+      console.error('Chatbot API Error:', error);
+      setError('Failed to get AI response. Using fallback advice.');
+      
+      // Use fallback response
+      const fallbackMessage = {
+        id: (Date.now() + 1).toString(),
+        text: fallbackResponses[Math.floor(Math.random() * fallbackResponses.length)],
+        isBot: true,
+        timestamp: new Date()
+      };
+      setMessages(prev => [...prev, fallbackMessage]);
+    } finally {
       setIsTyping(false);
-    }, 1500 + Math.random() * 1000);
+    }
   };
 
   if (!isOpen) {
@@ -122,6 +142,12 @@ const Chatbot = ({ isOpen, onToggle }) => {
         <div ref={messagesEndRef} />
       </div>
 
+      {error && (
+        <div className="chatbot-error">
+          <p>{error}</p>
+        </div>
+      )}
+      
       <div className="chatbot-input">
         <input
           type="text"

@@ -117,6 +117,13 @@ export const getUser = async (address) => {
     };
   } catch (error) {
     console.error('Error checking user registration:', error);
+    // Handle specific error types gracefully
+    if (error.message.includes('circuit breaker') || 
+        error.message.includes('missing revert data') ||
+        error.code === 'CALL_EXCEPTION') {
+      console.log('Contract call failed - user likely not registered or contract issue');
+      return null;
+    }
     return null;
   }
 };
@@ -128,7 +135,8 @@ export const getMyUser = async () => {
     return await getUser(address);
   } catch (error) {
     console.error('Error getting current user data:', error);
-    throw error;
+    // Return null instead of throwing for better UX
+    return null;
   }
 };
 
