@@ -115,6 +115,11 @@ const Index = ({ user, onLogout }) => {
     });
   };
 
+  // Handle phase click to navigate to phase content
+  const handlePhaseClick = (phase) => {
+    setActiveTab(phase.id);
+  };
+
   // Handle marking a phase as complete
   const handlePhaseComplete = (phaseId) => {
     setPhases(prevPhases => {
@@ -223,6 +228,7 @@ const Index = ({ user, onLogout }) => {
           maxXP={maxXP}
           phases={phases}
           onPhaseComplete={handlePhaseComplete}
+          onPhaseClick={handlePhaseClick}
         />;
       case "ideation":
       case "validation":

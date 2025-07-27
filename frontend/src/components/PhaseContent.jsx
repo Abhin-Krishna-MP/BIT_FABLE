@@ -173,6 +173,8 @@ const PhaseContent = ({ phase, phaseData, onMarkPhaseComplete, onTaskComplete })
         </button>
         <button className="btn-help">Get Help</button>
       </div>
+
+
     </div>
   );
 };

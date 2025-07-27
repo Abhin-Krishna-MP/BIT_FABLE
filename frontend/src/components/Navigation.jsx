@@ -30,8 +30,12 @@ const Navigation = ({ activeTab, onTabChange, phases = [], currentPhaseIndex = 0
           <h2>StartupQuest</h2>
         </div>
         <div className="nav-user-info">
-          <div className="user-level">Level {userLevel}</div>
-          <div className="user-xp">{userXP} XP</div>
+          <div className="user-level">
+            <span className="level-badge">Level {userLevel}</span>
+          </div>
+          <div className="user-xp">
+            <span className="xp-badge">⭐ {userXP} XP</span>
+          </div>
         </div>
       </div>
 

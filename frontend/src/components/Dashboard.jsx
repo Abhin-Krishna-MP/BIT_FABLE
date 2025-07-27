@@ -1,10 +1,10 @@
 import { useState } from "react";
 import XPBar from "./XPBar";
-import PhaseCard from "./PhaseCard";
+import RouteMap from "./RouteMap";
 import RPGCharacter from "./RPGCharacter";
 import { Sparkles, Target, Zap } from "lucide-react";
 
-const Dashboard = ({ userLevel, userXP, maxXP, phases, onPhaseComplete }) => {
+const Dashboard = ({ userLevel, userXP, maxXP, phases, onPhaseComplete, onPhaseClick }) => {
   const [celebratePhase, setCelebratePhase] = useState(null);
 
   const handlePhaseComplete = (phaseId) => {
@@ -13,20 +13,14 @@ const Dashboard = ({ userLevel, userXP, maxXP, phases, onPhaseComplete }) => {
     setTimeout(() => setCelebratePhase(null), 3000);
   };
 
+  const handlePhaseClick = (phase) => {
+    if (onPhaseClick) {
+      onPhaseClick(phase);
+    }
+  };
+
   const completedCount = phases.filter(p => p.status === 'completed').length;
   const unlockedCount = phases.filter(p => p.status === 'unlocked').length;
-
-  // Find the current phase (first unlocked and not completed)
-  const currentPhaseIndex = phases.findIndex(p => p.status === 'unlocked');
-
-  // Helper to determine if a phase is lockable
-  const isPhaseLocked = (idx) => idx > currentPhaseIndex;
-  const isPhaseCurrent = (idx) => idx === currentPhaseIndex;
-  const isPhasePrevious = (idx) => idx < currentPhaseIndex;
-
-  // Helper to determine if all tasks are complete for a phase (simulate for now)
-  // In a real app, you would pass this info from parent or global state
-  const arePhaseTasksComplete = (phase) => phase.progress === 100;
 
   return (
     <div className="dashboard-container">
@@ -75,33 +69,12 @@ const Dashboard = ({ userLevel, userXP, maxXP, phases, onPhaseComplete }) => {
         </div>
       </div>
 
-      {/* Startup Journey Header */}
-      <div className="journey-header">
-        <h1>Your Startup Journey</h1>
-        <p>Complete phases to unlock new challenges and earn XP</p>
-      </div>
-
-      {/* Phase Cards */}
-      <div className="phases-grid">
-        {phases.map((phase, idx) => (
-          <PhaseCard
-            key={phase.id}
-            title={phase.title}
-            description={phase.description}
-            status={isPhaseLocked(idx) ? 'locked' : phase.status}
-            progress={phase.progress}
-            xpReward={phase.xpReward}
-            onComplete={() => {
-              if (isPhaseCurrent(idx) && arePhaseTasksComplete(phase)) {
-                handlePhaseComplete(phase.id);
-              }
-            }}
-            canMarkComplete={isPhaseCurrent(idx) && arePhaseTasksComplete(phase)}
-            isCurrent={isPhaseCurrent(idx)}
-            isPrevious={isPhasePrevious(idx)}
-          />
-        ))}
-      </div>
+      {/* Route Map */}
+      <RouteMap 
+        phases={phases}
+        onPhaseComplete={handlePhaseComplete}
+        onPhaseClick={handlePhaseClick}
+      />
 
       {/* Motivational Section */}
       <div className="motivation-box">

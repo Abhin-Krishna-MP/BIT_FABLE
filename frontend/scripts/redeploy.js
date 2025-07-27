@@ -2,71 +2,68 @@ import pkg from "hardhat";
 const { ethers } = pkg;
 import fs from 'fs';
 import path from 'path';
+import { fileURLToPath } from 'url';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 async function main() {
   console.log("🚀 Starting XPSystem contract redeployment...");
-
-  // Get the contract factory
+  
+  // Deploy the contract
   const XPSystem = await ethers.getContractFactory("XPSystem");
   console.log("📋 Contract factory created");
-
-  // Deploy the contract
+  
   console.log("⏳ Deploying XPSystem contract...");
   const xpSystem = await XPSystem.deploy();
-  
-  // Wait for deployment to finish
   await xpSystem.waitForDeployment();
   
-  // Get the deployed contract address
   const contractAddress = await xpSystem.getAddress();
-  
   console.log("✅ XPSystem deployed successfully!");
   console.log("📍 Contract address:", contractAddress);
+  console.log("🔗 Network: localhost");
   
-  // Verify the deployment by calling a view function
+  // Verify the contract works
   try {
-    const isRegistered = await xpSystem.isUserRegistered("0x0000000000000000000000000000000000000000");
+    const testAddress = "0x0000000000000000000000000000000000000000";
+    const isRegistered = await xpSystem.isUserRegistered(testAddress);
     console.log("✅ Contract verification successful - isUserRegistered function works");
   } catch (error) {
-    console.log("⚠️  Contract verification failed:", error.message);
+    console.log("⚠️ Contract verification failed:", error.message);
   }
   
   // Update the contract address in xpContract.js
-  const xpContractPath = path.join(process.cwd(), 'src', 'ethereum', 'xpContract.js');
+  const xpContractPath = path.join(__dirname, '../src/ethereum/xpContract.js');
   let xpContractContent = fs.readFileSync(xpContractPath, 'utf8');
   
-  // Replace the contract address
-  const oldAddressRegex = /const CONTRACT_ADDRESS = '0x[a-fA-F0-9]{40}';/;
-  const newAddressLine = `const CONTRACT_ADDRESS = '${contractAddress}';`;
+  // Update the contract address
+  const addressRegex = /const CONTRACT_ADDRESS = '([^']+)';/;
+  xpContractContent = xpContractContent.replace(addressRegex, `const CONTRACT_ADDRESS = '${contractAddress}';`);
   
-  if (oldAddressRegex.test(xpContractContent)) {
-    xpContractContent = xpContractContent.replace(oldAddressRegex, newAddressLine);
-    fs.writeFileSync(xpContractPath, xpContractContent);
-    console.log("✅ Updated contract address in xpContract.js");
+  fs.writeFileSync(xpContractPath, xpContractContent);
+  console.log("✅ Updated contract address in xpContract.js");
+  
+  // Copy the ABI from artifacts to src/ethereum
+  const artifactPath = path.join(__dirname, '../artifacts/contracts/XPSystem.sol/XPSystem.json');
+  const targetPath = path.join(__dirname, '../src/ethereum/XPSystem.json');
+  
+  if (fs.existsSync(artifactPath)) {
+    fs.copyFileSync(artifactPath, targetPath);
+    console.log("✅ Copied latest ABI to src/ethereum/XPSystem.json");
   } else {
-    console.log("⚠️  Could not find contract address in xpContract.js");
+    console.log("⚠️ ABI file not found at:", artifactPath);
   }
   
-  // Copy the latest ABI
-  const artifactsPath = path.join(process.cwd(), 'artifacts', 'contracts', 'XPSystem.sol', 'XPSystem.json');
-  const abiPath = path.join(process.cwd(), 'src', 'ethereum', 'XPSystem.json');
-  
-  if (fs.existsSync(artifactsPath)) {
-    fs.copyFileSync(artifactsPath, abiPath);
-    console.log("✅ Updated ABI from artifacts");
-  } else {
-    console.log("⚠️  Could not find artifacts file");
-  }
-  
-  console.log("\n📝 Redeployment completed!");
-  console.log("📍 New contract address:", contractAddress);
-  console.log("🔄 Frontend code has been updated automatically");
-  console.log("🚀 You can now test the integration!");
-  
-  return contractAddress;
+  console.log("\n📝 Next steps:");
+  console.log("1. The contract address has been updated automatically");
+  console.log("2. The ABI has been copied to the frontend");
+  console.log("3. Start your React app and test the integration!");
+  console.log("4. Make sure MetaMask is connected to localhost:8545");
 }
 
-main().catch((error) => {
-  console.error("❌ Redeployment failed:", error);
-  process.exitCode = 1;
-}); 
+main()
+  .then(() => process.exit(0))
+  .catch((error) => {
+    console.error("❌ Deployment failed:", error);
+    process.exit(1);
+  }); 

@@ -77,7 +77,407 @@ body {
   transform: scale(1.1);
 }
 
-/* 5. Phase cards */
+/* 5. Route Map Styles */
+.route-map-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 32px 24px;
+}
+
+.route-map-header {
+  text-align: center;
+  margin-bottom: 48px;
+}
+
+.route-map-header h2 {
+  font-size: 2.5rem;
+  font-weight: 700;
+  background: linear-gradient(135deg, var(--primary), var(--secondary));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  margin-bottom: 8px;
+}
+
+.route-map-header p {
+  font-size: 1.1rem;
+  color: var(--muted-foreground);
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+.route-map {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 32px;
+  position: relative;
+  padding: 40px 0;
+}
+
+.route-node-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+  position: relative;
+  width: 100%;
+  max-width: 400px;
+}
+
+.connection-line {
+  position: absolute;
+  top: -20px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 4px;
+  height: 40px;
+  background: var(--muted);
+  border-radius: 2px;
+  z-index: 1;
+}
+
+.connection-line.connection-completed {
+  background: linear-gradient(to bottom, var(--secondary), var(--primary));
+  box-shadow: 0 0 10px rgba(142, 60%, 45%, 0.3);
+}
+
+.connection-line.connection-current {
+  background: linear-gradient(to bottom, var(--primary), var(--accent));
+  box-shadow: 0 0 10px rgba(220, 70%, 50%, 0.3);
+}
+
+.connection-fill {
+  width: 100%;
+  height: 100%;
+  background: inherit;
+  border-radius: inherit;
+  transform: scaleY(0);
+  transform-origin: top;
+  animation: connectionFill 0.8s ease-out forwards;
+}
+
+@keyframes connectionFill {
+  to {
+    transform: scaleY(1);
+  }
+}
+
+.connection-sparkle {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  color: var(--accent);
+  animation: sparkle 2s ease-in-out infinite;
+}
+
+@keyframes sparkle {
+  0%, 100% { opacity: 0.3; transform: translate(-50%, -50%) scale(0.8); }
+  50% { opacity: 1; transform: translate(-50%, -50%) scale(1.2); }
+}
+
+.route-node {
+  position: relative;
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  background: var(--card);
+  border: 3px solid var(--border);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  z-index: 2;
+}
+
+.route-node:hover {
+  transform: scale(1.1);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+}
+
+.route-node.locked {
+  background: var(--muted);
+  border-color: var(--border);
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.route-node.locked:hover {
+  transform: none;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.route-node.unlocked {
+  background: linear-gradient(135deg, var(--primary), var(--secondary));
+  border-color: var(--primary);
+  box-shadow: 0 4px 12px rgba(220, 70%, 50%, 0.3);
+}
+
+.route-node.unlocked:hover {
+  box-shadow: 0 8px 24px rgba(220, 70%, 50%, 0.4);
+}
+
+.route-node.completed {
+  background: linear-gradient(135deg, var(--secondary), #10b981);
+  border-color: var(--secondary);
+  box-shadow: 0 4px 12px rgba(142, 60%, 45%, 0.3);
+}
+
+.route-node.current {
+  animation: currentPhasePulse 2s ease-in-out infinite;
+}
+
+@keyframes currentPhasePulse {
+  0%, 100% { box-shadow: 0 4px 12px rgba(220, 70%, 50%, 0.3); }
+  50% { box-shadow: 0 8px 24px rgba(220, 70%, 50%, 0.6); }
+}
+
+.phase-number-badge {
+  position: absolute;
+  top: -8px;
+  right: -8px;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: var(--accent);
+  color: var(--accent-foreground);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.75rem;
+  font-weight: 600;
+  border: 2px solid var(--background);
+}
+
+.phase-icon-container {
+  position: relative;
+  z-index: 3;
+}
+
+.phase-icon {
+  width: 24px;
+  height: 24px;
+  color: var(--muted-foreground);
+}
+
+.phase-icon.completed {
+  color: white;
+}
+
+.phase-icon.unlocked {
+  color: white;
+}
+
+.phase-xp-badge {
+  position: absolute;
+  bottom: -8px;
+  left: -8px;
+  background: var(--accent);
+  color: var(--accent-foreground);
+  padding: 4px 8px;
+  border-radius: 12px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  border: 2px solid var(--background);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.progress-ring {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 1;
+}
+
+.progress-ring-svg {
+  transform: rotate(-90deg);
+}
+
+.progress-ring-background {
+  transition: stroke 0.3s ease;
+}
+
+.progress-ring-fill {
+  transition: stroke-dashoffset 0.8s ease-out;
+}
+
+.phase-tooltip {
+  position: absolute;
+  top: -120px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 16px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+  z-index: 10;
+  min-width: 200px;
+  text-align: center;
+}
+
+.phase-tooltip::after {
+  content: '';
+  position: absolute;
+  bottom: -8px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 0;
+  height: 0;
+  border-left: 8px solid transparent;
+  border-right: 8px solid transparent;
+  border-top: 8px solid var(--card);
+}
+
+.phase-tooltip h4 {
+  margin: 0 0 8px 0;
+  font-size: 1rem;
+  color: var(--foreground);
+}
+
+.phase-tooltip p {
+  margin: 0 0 12px 0;
+  font-size: 0.875rem;
+  color: var(--muted-foreground);
+}
+
+.tooltip-progress {
+  margin-bottom: 12px;
+  font-size: 0.875rem;
+  color: var(--primary);
+  font-weight: 500;
+}
+
+.tooltip-action {
+  background: var(--primary);
+  color: var(--primary-foreground);
+  border: none;
+  border-radius: 8px;
+  padding: 8px 16px;
+  font-size: 0.875rem;
+  font-weight: 500;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin: 0 auto;
+  transition: all 0.2s ease;
+}
+
+.tooltip-action:hover {
+  background: var(--primary);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(220, 70%, 50%, 0.3);
+}
+
+.phase-info-card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 20px;
+  text-align: center;
+  max-width: 300px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+  transition: all 0.3s ease;
+}
+
+.phase-info-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+}
+
+.phase-info-card .phase-title {
+  margin: 0 0 8px 0;
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: var(--foreground);
+}
+
+.phase-info-card .phase-description {
+  margin: 0 0 16px 0;
+  font-size: 0.875rem;
+  color: var(--muted-foreground);
+  line-height: 1.4;
+}
+
+.phase-stats {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.75rem;
+  color: var(--muted-foreground);
+}
+
+.phase-tasks {
+  color: var(--primary);
+  font-weight: 500;
+}
+
+.phase-progress {
+  color: var(--secondary);
+  font-weight: 500;
+}
+
+.journey-progress {
+  margin-top: 48px;
+  text-align: center;
+}
+
+.journey-progress .progress-bar {
+  width: 100%;
+  max-width: 400px;
+  height: 8px;
+  background: var(--muted);
+  border-radius: 4px;
+  overflow: hidden;
+  margin: 0 auto 16px;
+}
+
+.journey-progress .progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--secondary), var(--primary));
+  border-radius: 4px;
+  transition: width 0.8s ease-out;
+}
+
+.progress-stats {
+  font-size: 0.875rem;
+  color: var(--muted-foreground);
+  font-weight: 500;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .route-map-header h2 {
+    font-size: 2rem;
+  }
+  
+  .route-node {
+    width: 70px;
+    height: 70px;
+  }
+  
+  .phase-info-card {
+    max-width: 280px;
+    padding: 16px;
+  }
+  
+  .phase-tooltip {
+    min-width: 180px;
+    padding: 12px;
+  }
+}
+
+
+
+/* 8. Phase cards (keeping for backward compatibility) */
 .phase-card {
   border-radius: 12px;
   padding: 24px;
@@ -4039,9 +4439,30 @@ body {
 
 .nav-user-info {
   display: flex;
-  justify-content: space-between;
-  font-size: 0.8rem;
-  color: var(--muted-foreground);
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.875rem;
+}
+
+.level-badge {
+  background: linear-gradient(135deg, var(--primary), var(--secondary));
+  color: white;
+  padding: 4px 12px;
+  border-radius: 12px;
+  font-weight: 600;
+  font-size: 0.75rem;
+  box-shadow: 0 2px 8px rgba(220, 70%, 50%, 0.3);
+}
+
+.xp-badge {
+  background: linear-gradient(135deg, var(--accent), #f59e0b);
+  color: white;
+  padding: 4px 12px;
+  border-radius: 12px;
+  font-weight: 600;
+  font-size: 0.75rem;
+  box-shadow: 0 2px 8px rgba(45, 90%, 55%, 0.3);
 }
 
 .nav-footer {

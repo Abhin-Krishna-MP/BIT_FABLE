@@ -36,6 +36,8 @@ const Profile = ({ username, level, xp, maxXP, badges = [], completedPhases = []
     initializeEthereum();
   }, []);
 
+
+
   const initializeEthereum = async () => {
     try {
       // Check if MetaMask is available
@@ -483,6 +485,8 @@ const Profile = ({ username, level, xp, maxXP, badges = [], completedPhases = []
           ))}
         </div>
       </div>
+
+
 
       <div className="phases-section">
         <h2 className="section-title">Completed Phases</h2>
