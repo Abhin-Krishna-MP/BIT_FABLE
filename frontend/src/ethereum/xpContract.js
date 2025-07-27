@@ -1,7 +1,7 @@
 import { ethers } from 'ethers';
 import XPSystemABI from './XPSystem.json';
 
-const CONTRACT_ADDRESS = '0x5FbDB2315678afecb367f032d93F642f64180aa3';
+const CONTRACT_ADDRESS = '0x9fE46736679d2D9a65F0992F2272dE9f3c7fa6e0';
 const NETWORK_ID = 1337;
 
 export const getProvider = () => {
@@ -105,24 +105,25 @@ export const getUser = async (address) => {
       return null;
     }
     
-    // Since getUser and getMyUser are having decoding issues,
-    // we'll return a basic user object indicating they're registered
-    // The actual data will be managed locally until we fix the contract
+    // Get the actual user data from the contract
+    const userData = await contract.getUser(address);
+    
+    // Convert BigInt values to numbers and return structured data
     return {
-      username: "Registered User",
-      xp: 0,
-      level: 1,
-      achievements: 0,
-      dailyStreak: 0,
-      lastDailyCheck: 0,
-      powerUpsUsed: 0,
-      totalTasksCompleted: 0,
-      totalPhasesCompleted: 0,
-      ideasShared: 0,
-      upvotesGiven: 0
+      username: userData[0],
+      xp: Number(userData[1]),
+      level: Number(userData[2]),
+      achievements: Number(userData[3]),
+      dailyStreak: Number(userData[4]),
+      lastDailyCheck: Number(userData[5]),
+      powerUpsUsed: Number(userData[6]),
+      totalTasksCompleted: Number(userData[7]),
+      totalPhasesCompleted: Number(userData[8]),
+      ideasShared: Number(userData[9]),
+      upvotesGiven: Number(userData[10])
     };
   } catch (error) {
-    console.error('Error checking user registration:', error);
+    console.error('Error getting user data:', error);
     // Handle specific error types gracefully
     if (error.message.includes('could not decode result data') || 
         error.message.includes('0x') ||
