@@ -48,6 +48,19 @@ export const useBadgeContract = () => {
     }
   };
 
+  const canClaimBadge = async (badgeTypeId) => {
+    if (!address || !badgeContractInfo.address) return false;
+    
+    try {
+      // For now, return true if user doesn't have the badge
+      // In a real implementation, you'd check the contract
+      return true;
+    } catch (err) {
+      console.error('Error checking if can claim badge:', err);
+      return false;
+    }
+  };
+
   const getBadgeMetadata = async (tokenId) => {
     if (!badgeContractInfo.address) return null;
     
@@ -97,19 +110,18 @@ export const useBadgeContract = () => {
     try {
       setError(null);
       
-      // Note: This requires the contract owner to call mintBadge
-      // In a real implementation, you might want to call this from your backend
-      // or have a different mechanism for users to claim badges
-      await writeContract({
+      // Use the new claimBadge function that allows users to claim badges for themselves
+      const result = await writeContract({
         address: badgeContractInfo.address,
         abi,
-        functionName: 'mintBadge',
-        args: [address, BigInt(badgeTypeId)],
+        functionName: 'claimBadge',
+        args: [BigInt(badgeTypeId)],
       });
       
-      return true;
+      // The result is a hash string
+      return result;
     } catch (err) {
-      setError('Failed to mint badge: ' + err.message);
+      setError('Failed to claim badge: ' + err.message);
       throw err;
     }
   };
@@ -118,6 +130,7 @@ export const useBadgeContract = () => {
     loading: hasBadgeLoading || userBadgesLoading || isMinting,
     error,
     hasBadge,
+    canClaimBadge,
     getBadgeMetadata,
     getBadgeType,
     getUserBadges,

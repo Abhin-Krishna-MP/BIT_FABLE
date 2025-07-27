@@ -8,72 +8,88 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 async function main() {
-  console.log("🚀 Starting AchievementBadge contract deployment...");
+  console.log("🏆 Starting AchievementBadge contract deployment...");
   
-  // Deploy the contract
+  // Get the contract factory
   const AchievementBadge = await ethers.getContractFactory("AchievementBadge");
   console.log("📋 Contract factory created");
   
+  // Deploy the contract
   console.log("⏳ Deploying AchievementBadge contract...");
-  const achievementBadge = await AchievementBadge.deploy();
-  await achievementBadge.waitForDeployment();
+  const badgeContract = await AchievementBadge.deploy();
+  await badgeContract.waitForDeployment();
   
-  const contractAddress = await achievementBadge.getAddress();
+  const badgeContractAddress = await badgeContract.getAddress();
   console.log("✅ AchievementBadge deployed successfully!");
-  console.log("📍 Contract address:", contractAddress);
+  console.log("📍 Contract address:", badgeContractAddress);
   console.log("🔗 Network: localhost");
   
-  // Add badge types
-  console.log("🔍 Adding badge types...");
+  // Add some initial badge types
+  console.log("🎯 Adding initial badge types...");
   
-  // Badge Type 1: Pitch Master
-  await achievementBadge.addBadgeType(
-    1,
-    "Pitch Master",
-    "Awarded for completing the Pitch & Scale phase.",
-    "https://ipfs.io/ipfs/QmSamplePitchMasterBadge"
-  );
-  console.log("✅ Added Pitch Master badge");
+  const badgeTypes = [
+    {
+      id: 1,
+      name: "Pitch Master",
+      description: "Awarded for completing the Pitch & Scale phase.",
+      imageURI: "https://ipfs.io/ipfs/QmSampleBadge1"
+    },
+    {
+      id: 2,
+      name: "Ideation Expert",
+      description: "Awarded for completing the Ideation phase.",
+      imageURI: "https://ipfs.io/ipfs/QmSampleBadge2"
+    },
+    {
+      id: 3,
+      name: "Validation Pro",
+      description: "Awarded for completing the Validation phase.",
+      imageURI: "https://ipfs.io/ipfs/QmSampleBadge3"
+    },
+    {
+      id: 4,
+      name: "MVP Builder",
+      description: "Awarded for completing the MVP phase.",
+      imageURI: "https://ipfs.io/ipfs/QmSampleBadge4"
+    },
+    {
+      id: 5,
+      name: "Launch Champion",
+      description: "Awarded for completing the Launch phase.",
+      imageURI: "https://ipfs.io/ipfs/QmSampleBadge5"
+    },
+    {
+      id: 6,
+      name: "Feedback Guru",
+      description: "Awarded for completing the Feedback & Iterate phase.",
+      imageURI: "https://ipfs.io/ipfs/QmSampleBadge6"
+    },
+    {
+      id: 7,
+      name: "Monetization Master",
+      description: "Awarded for completing the Monetization phase.",
+      imageURI: "https://ipfs.io/ipfs/QmSampleBadge7"
+    }
+  ];
   
-  // Badge Type 2: MVP Builder
-  await achievementBadge.addBadgeType(
-    2,
-    "MVP Builder",
-    "Awarded for completing the MVP Development phase.",
-    "https://ipfs.io/ipfs/QmSampleMVPBuilderBadge"
-  );
-  console.log("✅ Added MVP Builder badge");
+  for (const badgeType of badgeTypes) {
+    try {
+      const tx = await badgeContract.addBadgeType(
+        badgeType.id,
+        badgeType.name,
+        badgeType.description,
+        badgeType.imageURI
+      );
+      await tx.wait();
+      console.log(`✅ Added badge type: ${badgeType.name}`);
+    } catch (error) {
+      console.error(`❌ Failed to add badge type ${badgeType.name}:`, error.message);
+    }
+  }
   
-  // Badge Type 3: Market Explorer
-  await achievementBadge.addBadgeType(
-    3,
-    "Market Explorer",
-    "Awarded for completing the Market Research phase.",
-    "https://ipfs.io/ipfs/QmSampleMarketExplorerBadge"
-  );
-  console.log("✅ Added Market Explorer badge");
-  
-  // Badge Type 4: Level 5 Achiever
-  await achievementBadge.addBadgeType(
-    4,
-    "Level 5 Achiever",
-    "Awarded for reaching level 5 in the game.",
-    "https://ipfs.io/ipfs/QmSampleLevel5Badge"
-  );
-  console.log("✅ Added Level 5 Achiever badge");
-  
-  // Badge Type 5: Social Butterfly
-  await achievementBadge.addBadgeType(
-    5,
-    "Social Butterfly",
-    "Awarded for sharing 5 ideas with the community.",
-    "https://ipfs.io/ipfs/QmSampleSocialButterflyBadge"
-  );
-  console.log("✅ Added Social Butterfly badge");
-  
-  // Save contract address to a file for frontend use
+  // Save contract info
   const contractInfo = {
-    address: contractAddress,
+    address: badgeContractAddress,
     network: "localhost",
     deployedAt: new Date().toISOString()
   };
@@ -82,22 +98,40 @@ async function main() {
   fs.writeFileSync(contractInfoPath, JSON.stringify(contractInfo, null, 2));
   console.log("✅ Saved contract info to src/ethereum/badgeContract.json");
   
-  // Copy the ABI from artifacts to src/ethereum
+  // Copy ABI
   const artifactPath = path.join(__dirname, '../artifacts/contracts/AchievementBadge.sol/AchievementBadge.json');
-  const targetPath = path.join(__dirname, '../src/ethereum/AchievementBadge.json');
+  const abiPath = path.join(__dirname, '../src/ethereum/AchievementBadge.json');
   
   if (fs.existsSync(artifactPath)) {
-    fs.copyFileSync(artifactPath, targetPath);
+    const artifact = JSON.parse(fs.readFileSync(artifactPath, 'utf8'));
+    fs.writeFileSync(abiPath, JSON.stringify(artifact, null, 2));
     console.log("✅ Copied ABI to src/ethereum/AchievementBadge.json");
-  } else {
-    console.log("⚠️ ABI file not found at:", artifactPath);
+  }
+  
+  // Test the contract
+  console.log("🧪 Testing contract functionality...");
+  
+  try {
+    // Test getting badge type
+    const badgeType = await badgeContract.getBadgeType(1);
+    console.log("✅ Badge type 1 retrieved:", badgeType.name);
+    
+    // Test canClaimBadge function
+    const [owner] = await ethers.getSigners();
+    const canClaim = await badgeContract.canClaimBadge(owner.address, 1);
+    console.log("✅ Can claim badge test:", canClaim);
+    
+    console.log("🎉 Contract deployment and testing completed successfully!");
+  } catch (error) {
+    console.error("❌ Contract testing failed:", error.message);
   }
   
   console.log("\n📝 Next steps:");
-  console.log("1. The AchievementBadge contract has been deployed");
-  console.log("2. 5 badge types have been added");
-  console.log("3. Contract info and ABI have been saved");
-  console.log("4. You can now integrate the badge system into your frontend!");
+  console.log("1. The badge contract address has been updated automatically");
+  console.log("2. The ABI has been copied to the frontend");
+  console.log("3. Initial badge types have been added");
+  console.log("4. Start your React app and test badge claiming!");
+  console.log("5. Make sure MetaMask is connected to localhost:8545");
 }
 
 main()

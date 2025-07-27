@@ -3,6 +3,8 @@ import { useState, useEffect } from 'react';
 import { User as UserIcon, Award, Trophy, Target, TrendingUp, Wallet, AlertCircle, CheckCircle, HelpCircle, Sparkles } from 'lucide-react';
 import XPBar from "./XPBar";
 import MetaMaskGuide from "./MetaMaskGuide";
+import BalanceDisplay from "./BalanceDisplay";
+import AuthStatus from "./AuthStatus";
 import { useBadgeContract } from '../hooks/useBadgeContract';
 import { badgeService } from '../services/badgeService';
 import { 
@@ -302,6 +304,12 @@ const Profile = ({ username, level, xp, maxXP, badges = [], completedPhases = []
       <div className="xp-section">
         <XPBar currentXP={displayXP} maxXP={displayMaxXP} level={displayLevel} />
       </div>
+
+      {/* Wallet Balance & Transaction History */}
+      <BalanceDisplay />
+
+      {/* Backend Authentication Status */}
+      <AuthStatus />
 
       {/* Ethereum Connection Status */}
       {ethereumAvailable && (

@@ -1,0 +1,12 @@
+{
+  "qstToken": {
+    "address": "0x0000000000000000000000000000000000000000",
+    "network": "localhost",
+    "deployedAt": "2024-01-01T00:00:00.000Z"
+  },
+  "ideaVoting": {
+    "address": "0x0000000000000000000000000000000000000000",
+    "network": "localhost",
+    "deployedAt": "2024-01-01T00:00:00.000Z"
+  }
+} 

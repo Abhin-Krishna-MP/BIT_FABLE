@@ -1,15 +1,13 @@
 import { createConfig, http } from 'wagmi';
 import { localhost } from 'wagmi/chains';
-import { metaMask, walletConnect } from 'wagmi/connectors';
+import { getDefaultConfig } from '@rainbow-me/rainbowkit';
 
-// Set up wagmi config
-export const config = createConfig({
+// Set up wagmi config for localhost with RainbowKit
+export const config = getDefaultConfig({
+  appName: 'Startup Quest Voting',
+  projectId: 'YOUR_PROJECT_ID', // Optional for localhost
   chains: [localhost],
-  connectors: [
-    metaMask(),
-    walletConnect({ projectId: 'YOUR_PROJECT_ID' }), // Replace with your WalletConnect project ID
-  ],
   transports: {
-    [localhost.id]: http(),
+    [localhost.id]: http('http://127.0.0.1:8545'),
   },
 }); 

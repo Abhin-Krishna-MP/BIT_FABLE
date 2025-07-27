@@ -3,9 +3,13 @@ import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-d
 import { WagmiProvider } from 'wagmi';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { Toaster } from 'react-hot-toast';
+import { RainbowKitProvider } from '@rainbow-me/rainbowkit';
+import '@rainbow-me/rainbowkit/styles.css';
 import { config } from './ethereum/wagmiConfig';
 import Index from './pages/Index';
+import VotingPage from './pages/VotingPage';
 import AuthPage from './components/AuthPage';
+import MetaMaskTest from './components/MetaMaskTest';
 import { apiService } from './services/api';
 import './index.css';
 
@@ -68,42 +72,46 @@ function App() {
   return (
     <WagmiProvider config={config}>
       <QueryClientProvider client={queryClient}>
-        <Router>
-          <div className="App">
-            {!isAuthenticated ? (
-              <AuthPage onAuthSuccess={handleAuthSuccess} />
-            ) : (
-              <Routes>
-                <Route path="/" element={<Index user={user} onLogout={handleLogout} />} />
-                <Route path="*" element={<Navigate to="/" replace />} />
-              </Routes>
-            )}
-          </div>
-        </Router>
-        <Toaster 
-          position="top-right"
-          toastOptions={{
-            duration: 4000,
-            style: {
-              background: '#363636',
-              color: '#fff',
-            },
-            success: {
-              duration: 3000,
-              iconTheme: {
-                primary: '#4ade80',
-                secondary: '#fff',
+        <RainbowKitProvider>
+          <Router>
+            <div className="App">
+              {!isAuthenticated ? (
+                <AuthPage onAuthSuccess={handleAuthSuccess} />
+              ) : (
+                <Routes>
+                  <Route path="/" element={<Index user={user} onLogout={handleLogout} />} />
+                  <Route path="/voting" element={<VotingPage />} />
+                  <Route path="/metamask-test" element={<MetaMaskTest />} />
+                  <Route path="*" element={<Navigate to="/" replace />} />
+                </Routes>
+              )}
+            </div>
+          </Router>
+          <Toaster 
+            position="top-right"
+            toastOptions={{
+              duration: 4000,
+              style: {
+                background: '#363636',
+                color: '#fff',
               },
-            },
-            error: {
-              duration: 5000,
-              iconTheme: {
-                primary: '#ef4444',
-                secondary: '#fff',
+              success: {
+                duration: 3000,
+                iconTheme: {
+                  primary: '#4ade80',
+                  secondary: '#fff',
+                },
               },
-            },
-          }}
-        />
+              error: {
+                duration: 5000,
+                iconTheme: {
+                  primary: '#ef4444',
+                  secondary: '#fff',
+                },
+              },
+            }}
+          />
+        </RainbowKitProvider>
       </QueryClientProvider>
     </WagmiProvider>
   );

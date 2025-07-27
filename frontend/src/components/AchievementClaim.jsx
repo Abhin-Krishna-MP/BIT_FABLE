@@ -69,9 +69,9 @@ const AchievementClaim = ({ phaseId, phaseName, user }) => {
       // Mint the badge
       const txHash = await mintBadge(badgeInfo.badgeTypeId);
       
-      // Save badge info to backend
+      // Save badge info to backend or local storage
       await badgeService.createBadge({
-        user: user?.id,
+        user: user?.id || 'anonymous',
         wallet_address: address,
         badge_type: badgeInfo.badgeTypeId,
         badge_name: badgeType.name,

@@ -11,6 +11,7 @@ contract AchievementBadge is ERC721, Ownable {
     mapping(uint256 => BadgeType) public badgeTypes;
     mapping(address => mapping(uint256 => bool)) public userBadges;
     mapping(uint256 => BadgeMetadata) public tokenMetadata;
+    mapping(address => mapping(uint256 => bool)) public claimedBadges; // Track claimed badges
 
     struct BadgeType {
         string name;
@@ -27,6 +28,7 @@ contract AchievementBadge is ERC721, Ownable {
 
     event BadgeTypeAdded(uint256 indexed badgeTypeId, string name, string description);
     event BadgeMinted(address indexed recipient, uint256 indexed tokenId, uint256 indexed badgeTypeId);
+    event BadgeClaimed(address indexed recipient, uint256 indexed badgeTypeId);
 
     constructor() ERC721("StartUp Quest Achievement Badges", "SQAB") Ownable(msg.sender) {}
 
@@ -66,6 +68,37 @@ contract AchievementBadge is ERC721, Ownable {
 
         emit BadgeMinted(_recipient, newTokenId, _badgeTypeId);
         return newTokenId;
+    }
+
+    // New function: Allow users to claim badges for themselves
+    function claimBadge(uint256 _badgeTypeId) external returns (uint256) {
+        require(badgeTypes[_badgeTypeId].exists, "Badge type does not exist");
+        require(!userBadges[msg.sender][_badgeTypeId], "User already has this badge");
+        require(!claimedBadges[msg.sender][_badgeTypeId], "Badge already claimed");
+
+        _tokenIds++;
+        uint256 newTokenId = _tokenIds;
+
+        _mint(msg.sender, newTokenId);
+        userBadges[msg.sender][_badgeTypeId] = true;
+        claimedBadges[msg.sender][_badgeTypeId] = true;
+
+        tokenMetadata[newTokenId] = BadgeMetadata({
+            badgeTypeId: _badgeTypeId,
+            mintedAt: block.timestamp,
+            recipient: msg.sender
+        });
+
+        emit BadgeMinted(msg.sender, newTokenId, _badgeTypeId);
+        emit BadgeClaimed(msg.sender, _badgeTypeId);
+        return newTokenId;
+    }
+
+    // Function to check if user can claim a badge
+    function canClaimBadge(address _user, uint256 _badgeTypeId) external view returns (bool) {
+        return badgeTypes[_badgeTypeId].exists && 
+               !userBadges[_user][_badgeTypeId] && 
+               !claimedBadges[_user][_badgeTypeId];
     }
 
     function hasBadge(address _user, uint256 _badgeTypeId) external view returns (bool) {
