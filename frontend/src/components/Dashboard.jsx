@@ -1,6 +1,7 @@
 import { useState } from "react";
 import XPBar from "./XPBar";
 import PhaseCard from "./PhaseCard";
+import RPGCharacter from "./RPGCharacter";
 import { Sparkles, Target, Zap } from "lucide-react";
 
 const Dashboard = ({ userLevel, userXP, maxXP, phases, onPhaseComplete }) => {
@@ -41,6 +42,16 @@ const Dashboard = ({ userLevel, userXP, maxXP, phases, onPhaseComplete }) => {
           </div>
         </div>
       )}
+
+      {/* RPG Character */}
+      <RPGCharacter 
+        userLevel={userLevel} 
+        userXP={userXP}
+        onColorChange={(colors) => {
+          // Save character colors to localStorage
+          localStorage.setItem('rpgCharacterColors', JSON.stringify(colors));
+        }}
+      />
 
       {/* XP Bar */}
       <XPBar currentXP={userXP} maxXP={maxXP} level={userLevel} />

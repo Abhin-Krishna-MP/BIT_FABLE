@@ -11,6 +11,7 @@ import DailyChallenges from "../components/DailyChallenges";
 import PowerUps from "../components/PowerUps";
 import Leaderboard from "../components/Leaderboard";
 import MilestoneCelebrations from "../components/MilestoneCelebrations";
+import RPGCharacter from "../components/RPGCharacter";
 import { mockPhases, mockBadges, mockUser, mockFriends } from "../mockData";
 
 const Index = ({ user, onLogout }) => {
