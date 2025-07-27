@@ -19,8 +19,8 @@ const Dashboard = ({ userLevel, userXP, maxXP, phases, onPhaseComplete, onPhaseC
     }
   };
 
-  const completedCount = phases.filter(p => p.status === 'completed').length;
-  const unlockedCount = phases.filter(p => p.status === 'unlocked').length;
+  const completedCount = phases?.filter(p => p.status === 'completed').length || 0;
+  const unlockedCount = phases?.filter(p => p.status === 'unlocked').length || 0;
 
   return (
     <div className="dashboard-container">

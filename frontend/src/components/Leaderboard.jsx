@@ -41,10 +41,10 @@ const Leaderboard = ({ userProgress, userStats, phases }) => {
     // Add current user to leaderboard
     const currentUser = {
       id: 'current-user',
-      username: userStats.username || 'You',
-      level: userProgress.userLevel,
-      xp: userProgress.userXP,
-      completedPhases: phases.filter(p => p.status === 'completed').length,
+      username: userStats?.username || 'You',
+      level: userProgress?.userLevel || 1,
+      xp: userProgress?.userXP || 0,
+      completedPhases: phases?.filter(p => p.status === 'completed').length || 0,
       streak: 0, // Will be updated from localStorage
       avatar: '🚀',
       isCurrentUser: true
@@ -241,12 +241,12 @@ const Leaderboard = ({ userProgress, userStats, phases }) => {
         </div>
         <div className="stat-card">
           <TrendingUp className="stat-icon" />
-          <div className="stat-value">{Math.max(...leaderboard.map(u => u.xp))}</div>
+          <div className="stat-value">{Math.max(...leaderboard.map(u => u.xp || 0))}</div>
           <div className="stat-label">Highest XP</div>
         </div>
         <div className="stat-card">
           <Star className="stat-icon" />
-          <div className="stat-value">{Math.max(...leaderboard.map(u => u.level))}</div>
+          <div className="stat-value">{Math.max(...leaderboard.map(u => u.level || 0))}</div>
           <div className="stat-label">Highest Level</div>
         </div>
       </div>
@@ -278,7 +278,7 @@ const Leaderboard = ({ userProgress, userStats, phases }) => {
               <div className="stats-section">
                 <div className="stat-item">
                   <span className="stat-label">XP</span>
-                  <span className="stat-value">{user.xp.toLocaleString()}</span>
+                  <span className="stat-value">{(user.xp || 0).toLocaleString()}</span>
                 </div>
                 <div className="stat-item">
                   <span className="stat-label">Phases</span>
@@ -299,9 +299,9 @@ const Leaderboard = ({ userProgress, userStats, phases }) => {
           <div className="position-card">
             <div className="position-rank">#{userRank}</div>
             <div className="position-info">
-              <div className="position-name">{userStats.username || 'You'}</div>
+              <div className="position-name">{userStats?.username || 'You'}</div>
               <div className="position-stats">
-                Level {userProgress.userLevel} • {userProgress.userXP} XP • {phases.filter(p => p.status === 'completed').length} phases
+                Level {userProgress?.userLevel || 1} • {userProgress?.userXP || 0} XP • {phases?.filter(p => p.status === 'completed').length || 0} phases
               </div>
             </div>
           </div>

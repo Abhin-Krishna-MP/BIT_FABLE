@@ -89,7 +89,7 @@ const Index = ({ user, onLogout }) => {
         const completedTasks = alreadyCompleted
           ? phase.completedTasks
           : [...phase.completedTasks, taskIdx];
-        const progress = Math.round((completedTasks.length / phase.tasks.length) * 100);
+        const progress = Math.round(((completedTasks?.length || 0) / (phase.tasks?.length || 1)) * 100);
         // Only award XP if not already completed
         if (!alreadyCompleted && phase.tasks[taskIdx]) {
           awardedXP = phase.tasks[taskIdx].xpReward || 0;
@@ -160,7 +160,7 @@ const Index = ({ user, onLogout }) => {
           completedPhases: [...prev.completedPhases.filter(id => id !== phaseId), completedPhaseTitle]
         }));
         setBadges(prevBadges => prevBadges.map(badge => {
-          if (badge.id === "first-steps" && userStats.completedPhases.length === 0) return { ...badge, earned: true };
+          if (badge.id === "first-steps" && (userStats?.completedPhases?.length || 0) === 0) return { ...badge, earned: true };
           if (badge.id === "validator" && phaseId === "validation") return { ...badge, earned: true };
           if (badge.id === "builder" && phaseId === "mvp") return { ...badge, earned: true };
           return badge;

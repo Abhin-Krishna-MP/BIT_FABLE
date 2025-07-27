@@ -148,11 +148,11 @@ const RouteMap = ({ phases, onPhaseComplete, onPhaseClick }) => {
         <div className="progress-bar">
           <div 
             className="progress-fill"
-            style={{ width: `${(phases.filter(p => p.status === 'completed').length / phases.length) * 100}%` }}
+                          style={{ width: `${(phases?.filter(p => p.status === 'completed').length || 0) / (phases?.length || 1) * 100}%` }}
           ></div>
         </div>
         <div className="progress-stats">
-          <span>{phases.filter(p => p.status === 'completed').length} of {phases.length} phases completed</span>
+                      <span>{phases?.filter(p => p.status === 'completed').length || 0} of {phases?.length || 0} phases completed</span>
         </div>
       </div>
     </div>
