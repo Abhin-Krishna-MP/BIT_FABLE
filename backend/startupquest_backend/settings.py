@@ -138,7 +138,11 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 # CORS Settings
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:5173",  # Vite dev server
+    "http://localhost:5175",  # Vite dev server (alternative port)
+    "http://localhost:5176",  # Vite dev server (another port)
     "http://127.0.0.1:5173",
+    "http://127.0.0.1:5175",
+    "http://127.0.0.1:5176",
 ]
 
 CORS_ALLOW_CREDENTIALS = True
@@ -146,7 +150,11 @@ CORS_ALLOW_CREDENTIALS = True
 # CSRF Settings for API
 CSRF_TRUSTED_ORIGINS = [
     "http://localhost:5173",
+    "http://localhost:5175",
+    "http://localhost:5176",
     "http://127.0.0.1:5173",
+    "http://127.0.0.1:5175",
+    "http://127.0.0.1:5176",
 ]
 
 # Custom User Model

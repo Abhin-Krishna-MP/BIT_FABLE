@@ -21,6 +21,13 @@ class ApiService {
       const data = await response.json();
 
       if (!response.ok) {
+        // Show more detailed error information
+        if (data && typeof data === 'object') {
+          const errorMessages = Object.entries(data)
+            .map(([field, errors]) => `${field}: ${Array.isArray(errors) ? errors.join(', ') : errors}`)
+            .join('; ');
+          throw new Error(errorMessages || 'Something went wrong');
+        }
         throw new Error(data.message || 'Something went wrong');
       }
 

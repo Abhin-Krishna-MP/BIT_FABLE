@@ -2,31 +2,31 @@
 
 /* 1. Design tokens */
 :root {
-  /* Gamified Color Palette */
-  --background: hsl(220,25%,8%);
-  --foreground: hsl(210,40%,98%);
-  --card: hsl(220,20%,12%);
-  --card-foreground: hsl(210,40%,98%);
-  --primary: hsl(260,85%,60%);
-  --primary-foreground: hsl(210,40%,98%);
-  --secondary: hsl(142,85%,50%);
-  --secondary-foreground: hsl(210,40%,98%);
-  --muted: hsl(220,15%,18%);
-  --muted-foreground: hsl(215,20.2%,65.1%);
-  --accent: hsl(45,95%,65%);
-  --accent-foreground: hsl(220,25%,8%);
-  --destructive: hsl(0,84.2%,60.2%);
-  --destructive-foreground: hsl(210,40%,98%);
-  --border: hsl(220,15%,25%);
-  --input: hsl(220,15%,25%);
-  --ring: hsl(260,85%,60%);
-  --warning: hsl(25,95%,60%);
-  --warning-foreground: hsl(220,25%,8%);
-  --xp-gradient: linear-gradient(90deg, hsl(260 85% 60%) 0%, hsl(280 85% 65%) 50%, hsl(300 85% 70%) 100%);
-  --badge-glow: 0 0 20px hsla(45,95%,65%,0.5);
-  --phase-locked: linear-gradient(135deg, hsl(220 15% 18%) 0%, hsl(220 10% 15%) 100%);
-  --phase-unlocked: linear-gradient(135deg, hsl(220 20% 22%) 0%, hsl(220 15% 18%) 100%);
-  --phase-completed: linear-gradient(135deg, hsl(142 50% 25%) 0%, hsl(142 40% 20%) 100%);
+  /* Professional White Theme */
+  --background: hsl(0, 0%, 100%);
+  --foreground: hsl(220, 25%, 15%);
+  --card: hsl(0, 0%, 98%);
+  --card-foreground: hsl(220, 25%, 15%);
+  --primary: hsl(220, 70%, 50%);
+  --primary-foreground: hsl(0, 0%, 100%);
+  --secondary: hsl(142, 60%, 45%);
+  --secondary-foreground: hsl(0, 0%, 100%);
+  --muted: hsl(220, 15%, 95%);
+  --muted-foreground: hsl(220, 10%, 45%);
+  --accent: hsl(45, 90%, 55%);
+  --accent-foreground: hsl(220, 25%, 15%);
+  --destructive: hsl(0, 85%, 60%);
+  --destructive-foreground: hsl(0, 0%, 100%);
+  --border: hsl(220, 15%, 90%);
+  --input: hsl(220, 15%, 95%);
+  --ring: hsl(220, 70%, 50%);
+  --warning: hsl(25, 95%, 60%);
+  --warning-foreground: hsl(220, 25%, 15%);
+  --xp-gradient: linear-gradient(90deg, hsl(220, 70%, 50%) 0%, hsl(240, 70%, 55%) 50%, hsl(260, 70%, 60%) 100%);
+  --badge-glow: 0 0 20px hsla(45, 90%, 55%, 0.3);
+  --phase-locked: linear-gradient(135deg, hsl(220, 15%, 92%) 0%, hsl(220, 10%, 88%) 100%);
+  --phase-unlocked: linear-gradient(135deg, hsl(220, 20%, 95%) 0%, hsl(220, 15%, 92%) 100%);
+  --phase-completed: linear-gradient(135deg, hsl(142, 50%, 85%) 0%, hsl(142, 40%, 80%) 100%);
   --radius: 0.75rem;
 }
 
@@ -82,8 +82,14 @@ body {
   border-radius: 12px;
   padding: 24px;
   cursor: pointer;
-  transition: border 0.3s;
+  transition: all 0.3s ease;
   border: 1px solid var(--border);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+}
+
+.phase-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
 }
 .phase-card-locked {
   background: var(--phase-locked);
@@ -109,25 +115,27 @@ body {
   border-radius: 8px;
   border: none;
   cursor: pointer;
-  box-shadow: 0 4px 15px hsla(260,85%,60%,0.3);
+  box-shadow: 0 4px 15px rgba(34, 139, 230, 0.2);
   transition: transform 0.2s, box-shadow 0.2s;
 }
 .btn-quest:hover {
   transform: scale(1.05);
-  box-shadow: 0 6px 20px hsla(260,85%,60%,0.4);
+  box-shadow: 0 6px 20px rgba(34, 139, 230, 0.3);
 }
 .btn-outline {
   background: transparent;
   color: var(--primary);
-  border: 1px solid var(--primary);
+  border: 2px solid var(--primary);
   font-weight: 600;
   padding: 12px 24px;
   border-radius: 8px;
   cursor: pointer;
-  transition: background 0.2s;
+  transition: all 0.2s;
 }
 .btn-outline:hover {
-  background: hsla(260,85%,60%,0.1);
+  background: var(--primary);
+  color: white;
+  transform: translateY(-2px);
 }
 .btn-complete {
   background: var(--secondary);
@@ -141,21 +149,23 @@ body {
 
 /* 7. Navigation tabs */
 .nav-tab {
-  padding: 8px 12px;
+  padding: 10px 16px;
   border-radius: 8px;
   font-weight: 500;
   display: flex;
   align-items: center;
-  gap: 6px;
+  gap: 8px;
   cursor: pointer;
-  transition: background 0.2s, color 0.2s, box-shadow 0.2s;
+  transition: all 0.2s ease;
   background: var(--card);
   border: 1px solid var(--border);
+  color: var(--muted-foreground);
 }
 .nav-tab.active {
   background: var(--primary);
   color: var(--primary-foreground);
-  box-shadow: 0 4px 12px hsla(260,85%,60%,0.4);
+  box-shadow: 0 4px 12px rgba(34, 139, 230, 0.3);
+  border-color: var(--primary);
 }
 
 /* 8. Floating chat button */
@@ -3647,7 +3657,7 @@ body {
 
 .auth-page {
   min-height: 100vh;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -3664,12 +3674,12 @@ body {
 }
 
 .auth-card {
-  background: rgba(255, 255, 255, 0.95);
+  background: rgba(255, 255, 255, 0.98);
   backdrop-filter: blur(20px);
-  border-radius: 24px;
+  border-radius: 16px;
   padding: 2.5rem;
-  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
-  border: 1px solid rgba(255, 255, 255, 0.2);
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.8);
   animation: slideInUp 0.6s ease-out;
 }
 
@@ -3716,10 +3726,7 @@ body {
   margin: 0;
   font-size: 2rem;
   font-weight: bold;
-  background: linear-gradient(135deg, var(--primary), var(--accent));
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
+  color: var(--foreground);
 }
 
 .auth-subtitle {
@@ -3807,11 +3814,11 @@ body {
 
 /* Submit Button */
 .auth-submit-btn {
-  background: linear-gradient(135deg, var(--primary), var(--accent));
+  background: var(--primary);
   color: white;
   border: none;
   padding: 1rem 2rem;
-  border-radius: 12px;
+  border-radius: 8px;
   font-size: 1rem;
   font-weight: 600;
   cursor: pointer;
@@ -3826,7 +3833,7 @@ body {
 
 .auth-submit-btn:hover:not(:disabled) {
   transform: translateY(-2px);
-  box-shadow: 0 10px 30px rgba(var(--primary), 0.3);
+  box-shadow: 0 8px 25px rgba(34, 139, 230, 0.3);
 }
 
 .auth-submit-btn:active:not(:disabled) {
@@ -3893,22 +3900,22 @@ body {
 }
 
 .toggle-btn {
-  background: linear-gradient(135deg, rgba(var(--primary), 0.1) 0%, rgba(var(--primary), 0.05) 100%);
-  border: 2px solid rgba(var(--primary), 0.2);
+  background: var(--muted);
+  border: 2px solid var(--border);
   padding: 1rem 2rem;
-  border-radius: 16px;
+  border-radius: 8px;
   cursor: pointer;
-  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: all 0.3s ease;
   display: flex;
   align-items: center;
   gap: 0.75rem;
   margin: 0 auto;
-  font-weight: 700;
+  font-weight: 600;
   font-size: 1rem;
-  color: hsl(260, 85%, 60%);
+  color: var(--foreground);
   position: relative;
   overflow: hidden;
-  box-shadow: 0 4px 12px rgba(var(--primary), 0.1);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
 }
 
 .toggle-btn::before {
@@ -3924,10 +3931,10 @@ body {
 
 .toggle-btn:hover {
   border-color: var(--primary);
-  background: linear-gradient(135deg, rgba(var(--primary), 0.15) 0%, rgba(var(--primary), 0.08) 100%);
-  transform: translateY(-3px);
-  box-shadow: 0 8px 25px rgba(var(--primary), 0.2);
-  color: hsl(260, 85%, 60%);
+  background: var(--primary);
+  color: white;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 15px rgba(34, 139, 230, 0.2);
 }
 
 .toggle-btn:hover::before {
@@ -3941,12 +3948,12 @@ body {
 
 .toggle-btn svg {
   transition: transform 0.3s ease;
-  color: hsl(260, 85%, 60%);
+  color: var(--foreground);
 }
 
 .toggle-btn:hover svg {
   transform: scale(1.1);
-  color: hsl(260, 85%, 60%);
+  color: white;
 }
 
 /* Theme Elements */
@@ -3963,15 +3970,16 @@ body {
   align-items: center;
   gap: 0.5rem;
   padding: 1rem;
-  background: rgba(var(--primary), 0.05);
-  border-radius: 12px;
-  border: 1px solid rgba(var(--primary), 0.1);
+  background: var(--muted);
+  border-radius: 8px;
+  border: 1px solid var(--border);
   transition: all 0.3s ease;
 }
 
 .theme-element:hover {
   transform: translateY(-2px);
-  background: rgba(var(--primary), 0.1);
+  background: var(--card);
+  border-color: var(--primary);
 }
 
 .theme-element svg {
@@ -3988,7 +3996,7 @@ body {
 /* Loading Screen */
 .loading-screen {
   min-height: 100vh;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -3996,7 +4004,7 @@ body {
 
 .loading-content {
   text-align: center;
-  color: white;
+  color: var(--foreground);
 }
 
 .loading-content h2 {

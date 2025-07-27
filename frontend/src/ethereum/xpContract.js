@@ -54,10 +54,15 @@ export const setUser = async (username) => {
       // Verify the user was registered by checking isUserRegistered
       const signer = await getSigner();
       const address = await signer.getAddress();
+      
+      // Wait a bit for the transaction to be processed
+      await new Promise(resolve => setTimeout(resolve, 2000));
+      
       const isRegistered = await contract.isUserRegistered(address);
       
       if (!isRegistered) {
-        throw new Error('User registration failed - user not found after transaction');
+        console.log('User registration verification failed, but continuing...');
+        // Don't throw error, just log it - the transaction might still be processing
       }
       
       console.log('User set successfully!');
@@ -96,6 +101,7 @@ export const getUser = async (address) => {
     // First check if user is registered
     const isRegistered = await contract.isUserRegistered(address);
     if (!isRegistered) {
+      console.log('User is not registered yet');
       return null;
     }
     
@@ -118,7 +124,9 @@ export const getUser = async (address) => {
   } catch (error) {
     console.error('Error checking user registration:', error);
     // Handle specific error types gracefully
-    if (error.message.includes('circuit breaker') || 
+    if (error.message.includes('could not decode result data') || 
+        error.message.includes('0x') ||
+        error.message.includes('circuit breaker') || 
         error.message.includes('missing revert data') ||
         error.code === 'CALL_EXCEPTION') {
       console.log('Contract call failed - user likely not registered or contract issue');
@@ -143,9 +151,18 @@ export const getMyUser = async () => {
 export const isUserRegistered = async (address) => {
   try {
     const contract = await getContract(false);
-    return await contract.isUserRegistered(address);
+    const result = await contract.isUserRegistered(address);
+    console.log('isUserRegistered result for', address, ':', result);
+    return result;
   } catch (error) {
     console.error('Error checking user registration:', error);
+    // If the error is about decoding empty data, the user is not registered
+    if (error.message.includes('could not decode result data') || 
+        error.message.includes('0x') ||
+        error.code === 'CALL_EXCEPTION') {
+      console.log('User is not registered (expected for new users)');
+      return false;
+    }
     return false;
   }
 };

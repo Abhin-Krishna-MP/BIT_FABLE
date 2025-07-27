@@ -10,6 +10,14 @@ class UserRegistrationSerializer(serializers.ModelSerializer):
         model = User
         fields = ['username', 'email', 'password', 'confirm_password']
 
+    def validate_username(self, value):
+        # Allow spaces in usernames
+        if not value.strip():
+            raise serializers.ValidationError("Username cannot be empty")
+        if len(value.strip()) < 3:
+            raise serializers.ValidationError("Username must be at least 3 characters")
+        return value.strip()
+
     def validate(self, attrs):
         if attrs['password'] != attrs['confirm_password']:
             raise serializers.ValidationError("Passwords don't match")
