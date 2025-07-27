@@ -1,6 +1,6 @@
 # StartupQuest 🚀
 
-A gamified startup journey platform built with React frontend and Django REST Framework backend.
+A gamified startup journey platform built with React frontend and Django REST Framework backend. super
 
 ## Features
 
