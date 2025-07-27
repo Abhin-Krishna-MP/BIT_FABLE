@@ -240,7 +240,7 @@ const Index = ({ user, onLogout }) => {
         // Always get the latest phase object from phases state
         const currentPhase = phases.find(p => p.id === activeTab);
         if (!currentPhase) return null;
-        return <PhaseContent phase={activeTab} phaseData={currentPhase} onMarkPhaseComplete={handlePhaseComplete} onTaskComplete={handleTaskComplete} />;
+        return <PhaseContent phase={activeTab} phaseData={currentPhase} onMarkPhaseComplete={handlePhaseComplete} onTaskComplete={handleTaskComplete} user={user} />;
       }
       case "achievements":
         return <Achievements 

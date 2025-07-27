@@ -1,8 +1,10 @@
 // Profile.jsx
 import { useState, useEffect } from 'react';
-import { User as UserIcon, Award, Trophy, Target, TrendingUp, Wallet, AlertCircle, CheckCircle, HelpCircle } from 'lucide-react';
+import { User as UserIcon, Award, Trophy, Target, TrendingUp, Wallet, AlertCircle, CheckCircle, HelpCircle, Sparkles } from 'lucide-react';
 import XPBar from "./XPBar";
 import MetaMaskGuide from "./MetaMaskGuide";
+import { useBadgeContract } from '../hooks/useBadgeContract';
+import { badgeService } from '../services/badgeService';
 import { 
   getMyUser, 
   setUser, 
@@ -29,14 +31,59 @@ const Profile = ({ username, level, xp, maxXP, badges = [], completedPhases = []
   const [newUsername, setNewUsername] = useState('');
   const [showUsernameForm, setShowUsernameForm] = useState(false);
 
+  // NFT Badge state
+  const [nftBadges, setNftBadges] = useState([]);
+  const [loadingBadges, setLoadingBadges] = useState(false);
+
   const earnedBadges = (badges || []).filter(b => b && b.earned);
+
+  // Badge contract hook
+  const { 
+    getUserBadges, 
+    getBadgeType, 
+    address, 
+    isConnected
+  } = useBadgeContract();
 
   // Check MetaMask connection on component mount
   useEffect(() => {
     initializeEthereum();
   }, []);
 
+  // Load NFT badges when wallet is connected
+  useEffect(() => {
+    if (isConnected && address) {
+      loadNftBadges();
+    }
+  }, [isConnected, address]);
 
+  const loadNftBadges = async () => {
+    if (!address) return;
+    
+    try {
+      setLoadingBadges(true);
+      const userBadgeIds = await getUserBadges();
+      const badgeDetails = [];
+      
+      for (const badgeId of userBadgeIds) {
+        const badgeType = await getBadgeType(badgeId);
+        if (badgeType) {
+          badgeDetails.push({
+            id: badgeId,
+            name: badgeType.name,
+            description: badgeType.description,
+            imageURI: badgeType.imageURI
+          });
+        }
+      }
+      
+      setNftBadges(badgeDetails);
+    } catch (error) {
+      console.error('Error loading NFT badges:', error);
+    } finally {
+      setLoadingBadges(false);
+    }
+  };
 
   const initializeEthereum = async () => {
     try {
@@ -100,13 +147,16 @@ const Profile = ({ username, level, xp, maxXP, badges = [], completedPhases = []
     try {
       setLoading(true);
       setError('');
+      
       const address = await requestMetaMaskConnection();
       setWalletAddress(address);
       setWalletConnected(true);
+      
       await loadOnChainData();
       setSuccess('Wallet connected successfully!');
     } catch (error) {
-      setError(error.message);
+      console.error('Error connecting wallet:', error);
+      setError('Failed to connect wallet: ' + error.message);
     } finally {
       setLoading(false);
     }
@@ -212,300 +262,225 @@ const Profile = ({ username, level, xp, maxXP, badges = [], completedPhases = []
         setError(result.message);
       }
     } catch (error) {
-      setError('Test failed: ' + error.message);
+      setError('Failed to test contract connection: ' + error.message);
     } finally {
       setLoading(false);
     }
   };
 
-  // Use on-chain data if available, otherwise fall back to props
-  const displayUsername = onChainData?.username || username;
-  const displayLevel = onChainData?.level || level;
-  const displayXP = onChainData?.xp || xp;
-  const isUserRegistered = onChainData !== null;
-
   const getCharacterAvatar = (level) => {
-    if (level >= 10) {
-      return (
-        <div className="avatar-container high-tier">
-          <div className="avatar-overlay"></div>
-          <span className="avatar-icon">🧙‍♂️</span>
-          <div className="avatar-badge">★</div>
-        </div>
-      );
-    } else if (level >= 5) {
-      return (
-        <div className="avatar-container mid-tier">
-          <div className="avatar-overlay"></div>
-          <span className="avatar-icon">🏗️</span>
-          <div className="avatar-badge">⚡</div>
-        </div>
-      );
-    } else {
-      return (
-        <div className="avatar-container base-tier">
-          <div className="avatar-overlay"></div>
-          <span className="avatar-icon">🚀</span>
-          <div className="avatar-badge">🌟</div>
-        </div>
-      );
-    }
+    if (level >= 10) return '🚀';
+    if (level >= 8) return '👑';
+    if (level >= 6) return '⭐';
+    if (level >= 4) return '🔥';
+    if (level >= 2) return '💪';
+    return '🌱';
   };
+
+  // Use on-chain data if available, otherwise use props
+  const displayUsername = onChainData?.username || username || 'Unnamed User';
+  const displayLevel = onChainData?.level || level || 1;
+  const displayXP = onChainData?.xp || xp || 0;
+  const displayMaxXP = onChainData ? (112 + (displayLevel - 1) * 200) : (maxXP || 100);
+  const displayIdeasShared = onChainData?.ideasShared || ideasShared || 0;
+  const displayUpvotesGiven = onChainData?.upvotesGiven || upvotesGiven || 0;
 
   return (
     <div className="profile-container">
-      {/* Wallet Connection Section */}
-      <div className="wallet-section">
-                 {!ethereumAvailable ? (
-           <div className="wallet-not-connected">
-             <AlertCircle className="wallet-icon" />
-             <div className="wallet-info">
-               <h3>MetaMask Not Available</h3>
-               <p>Please install MetaMask to use blockchain features.</p>
-             </div>
-             <div className="wallet-actions">
-               <button 
-                 className="btn-quest" 
-                 onClick={() => window.open('https://metamask.io/download/', '_blank')}
-               >
-                 <Wallet size={16} />
-                 Install MetaMask
-               </button>
-               <button 
-                 className="btn-outline" 
-                 onClick={() => setShowMetaMaskGuide(true)}
-               >
-                 <HelpCircle size={16} />
-                 Setup Guide
-               </button>
-             </div>
-           </div>
+      {/* Header */}
+      <div className="profile-header">
+        <div className="profile-avatar">
+          <span className="avatar-emoji">{getCharacterAvatar(displayLevel)}</span>
+        </div>
+        <div className="profile-info">
+          <h1 className="profile-name">{displayUsername}</h1>
+          <p className="profile-level">Level {displayLevel} • {displayIdeasShared} ideas shared</p>
+        </div>
+      </div>
+
+      {/* XP Bar */}
+      <div className="xp-section">
+        <XPBar currentXP={displayXP} maxXP={displayMaxXP} level={displayLevel} />
+      </div>
+
+      {/* Ethereum Connection Status */}
+      {ethereumAvailable && (
+        <div className="ethereum-section">
+          <div className="ethereum-header">
+            <Wallet size={20} />
+            <h3>Blockchain Connection</h3>
+          </div>
+          
+          {walletConnected ? (
+            <div className="connection-status connected">
+              <CheckCircle size={16} />
+              <span>Connected: {walletAddress.slice(0, 6)}...{walletAddress.slice(-4)}</span>
+            </div>
+          ) : (
+            <div className="connection-status disconnected">
+              <AlertCircle size={16} />
+              <span>Not Connected</span>
+              <button onClick={connectWallet} disabled={loading} className="connect-btn">
+                {loading ? 'Connecting...' : 'Connect Wallet'}
+              </button>
+            </div>
+          )}
+          
+          {walletConnected && (
+            <div className="blockchain-actions">
+              <button onClick={() => setShowUsernameForm(true)} className="action-btn">
+                Update Username
+              </button>
+              <button onClick={() => handleUpdateXP(50)} disabled={loading} className="action-btn">
+                +50 XP
+              </button>
+              <button onClick={handleTestContractConnection} disabled={loading} className="action-btn">
+                Test Connection
+              </button>
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* NFT Badges Section */}
+      {isConnected && (
+        <div className="nft-badges-section">
+          <div className="section-header">
+            <Sparkles size={20} />
+            <h3>NFT Achievement Badges</h3>
+          </div>
+          
+          {loadingBadges ? (
+            <div className="loading-badges">Loading badges...</div>
+          ) : nftBadges.length > 0 ? (
+            <div className="nft-badges-grid">
+              {nftBadges.map((badge) => (
+                <div key={badge.id} className="nft-badge-card">
+                  <div className="badge-image">
+                    <img src={badge.imageURI} alt={badge.name} />
+                  </div>
+                  <div className="badge-info">
+                    <h4>{badge.name}</h4>
+                    <p>{badge.description}</p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <div className="no-nft-badges">
+              <p>No NFT badges earned yet. Complete phases to earn badges!</p>
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* Regular Badges Section */}
+      <div className="badges-section">
+        <div className="section-header">
+          <Award size={20} />
+          <h3>Achievements</h3>
+        </div>
+        
+        {earnedBadges.length > 0 ? (
+          <div className="badges-grid">
+            {earnedBadges.map((badge, index) => (
+              <div key={index} className="badge-card earned">
+                <div className="badge-icon">
+                  <Trophy size={24} />
+                </div>
+                <div className="badge-info">
+                  <h4>{badge.name}</h4>
+                  <p>{badge.description}</p>
+                </div>
+              </div>
+            ))}
+          </div>
         ) : (
-          <>
-            {!walletConnected ? (
-              <div className="wallet-not-connected">
-                <AlertCircle className="wallet-icon" />
-                <div className="wallet-info">
-                  <h3>Connect Your Wallet</h3>
-                  <p>Connect MetaMask to sync your progress on-chain</p>
-                </div>
-                <button 
-                  className="btn-quest" 
-                  onClick={connectWallet}
-                  disabled={loading}
-                >
-                  <Wallet size={16} />
-                  {loading ? 'Connecting...' : 'Connect Wallet'}
-                </button>
-              </div>
-            ) : (
-              <div className="wallet-connected">
-                <CheckCircle className="wallet-icon" />
-                <div className="wallet-info">
-                  <h3>Wallet Connected</h3>
-                  <p className="wallet-address">{walletAddress}</p>
-                  {!isUserRegistered && (
-                    <p className="wallet-status">Not registered on-chain yet. Click the username edit button above to register!</p>
-                  )}
-                </div>
-                <button 
-                  className="btn-outline" 
-                  onClick={loadOnChainData}
-                  disabled={loading}
-                >
-                  {loading ? 'Loading...' : 'Refresh Data'}
-                </button>
-              </div>
-            )}
-          </>
+          <div className="no-badges">
+            <p>No achievements earned yet. Keep progressing to unlock badges!</p>
+          </div>
         )}
       </div>
 
-      {/* Error/Success Messages */}
-      {error && (
-        <div className="message error">
-          <AlertCircle size={16} />
-          {error}
-        </div>
-      )}
-      {success && (
-        <div className="message success">
-          <CheckCircle size={16} />
-          {success}
-        </div>
-      )}
-
-      <div className="profile-header">
-        <div className="profile-avatar">
-          {getCharacterAvatar(displayLevel)}
-        </div>
-        <div className="profile-info">
-          <div className="username-section">
-            <h1 className="profile-username">
-              {isUserRegistered ? displayUsername : displayUsername}
-            </h1>
-            <button 
-              className="btn-edit-username"
-              onClick={() => setShowUsernameForm(!showUsernameForm)}
-            >
-              <UserIcon size={14} />
-            </button>
-          </div>
-          <p className="profile-level">Level {displayLevel} Entrepreneur</p>
-          <XPBar currentXP={displayXP} maxXP={maxXP} level={displayLevel} />
-          
-          {/* Username Update Form */}
-          {showUsernameForm && (
-            <div className="username-form">
-              <p className="action-note">
-                {walletConnected 
-                  ? isUserRegistered 
-                    ? "Update your username on the blockchain (requires gas fees)"
-                    : "Register your username on the blockchain (requires gas fees)"
-                  : "Update your username locally. Connect wallet to sync on blockchain."
-                }
-              </p>
-              <input
-                type="text"
-                value={newUsername}
-                onChange={(e) => setNewUsername(e.target.value)}
-                placeholder="Enter new username"
-                className="username-input"
-              />
-              <div className="username-actions">
-                <button 
-                  className="btn-quest"
-                  onClick={handleSetUsername}
-                  disabled={loading}
-                >
-                  {loading ? 'Processing...' : (walletConnected && !isUserRegistered ? 'Register Username' : 'Update Username')}
-                </button>
-                <button 
-                  className="btn-outline"
-                  onClick={() => setShowUsernameForm(false)}
-                >
-                  Cancel
-                </button>
-              </div>
-            </div>
-          )}
-        </div>
-      </div>
-
-      {/* On-Chain Actions (if wallet connected) */}
-      {walletConnected && (
-        <div className="onchain-actions">
-          <h3>On-Chain Actions</h3>
-          {!isUserRegistered && (
-            <p className="action-note">Register with a username first to earn XP!</p>
-          )}
-          <div className="action-buttons">
-            <button 
-              className="btn-outline"
-              onClick={() => handleUpdateXP(10)}
-              disabled={loading || !isUserRegistered}
-            >
-              +10 XP (Test)
-            </button>
-            <button 
-              className="btn-outline"
-              onClick={() => handleUpdateXP(50)}
-              disabled={loading || !isUserRegistered}
-            >
-              +50 XP (Test)
-            </button>
-            <button 
-              className="btn-outline"
-              onClick={() => handleUpdateXP(100)}
-              disabled={loading || !isUserRegistered}
-            >
-              +100 XP (Test)
-            </button>
-            <button 
-              className="btn-outline"
-              onClick={handleTestContractConnection}
-              disabled={loading}
-            >
-              Test Contract Connection
-            </button>
-          </div>
-        </div>
-      )}
-
-      {/* Test Section - Show current username status */}
-      <div className="onchain-actions">
-        <h3>Current Status</h3>
-        <div className="action-buttons">
-          <div className="status-info">
-            <p><strong>Local Username:</strong> {username}</p>
-            <p><strong>Wallet Connected:</strong> {walletConnected ? 'Yes' : 'No'}</p>
-            <p><strong>On-Chain Registered:</strong> {isUserRegistered ? 'Yes' : 'No'}</p>
-            {onChainData && (
-              <p><strong>On-Chain Username:</strong> {onChainData.username}</p>
-            )}
-            {isUserRegistered && onChainData?.username === "Registered User" && (
-              <p className="action-note">⚠️ Username display limited due to contract decoding issue. Registration and updates still work perfectly!</p>
-            )}
-            {isUserRegistered && (
-              <p className="action-note">✅ Blockchain registration working! Username updates are functional.</p>
-            )}
-          </div>
-        </div>
-      </div>
-
-      <div className="profile-stats">
-        <div className="stat-card">
-          <Target className="stat-icon" />
-          <div className="stat-value">{completedPhases.length}</div>
-          <div className="stat-label">Phases Completed</div>
-        </div>
-        <div className="stat-card">
-          <TrendingUp className="stat-icon" />
-          <div className="stat-value">{ideasShared}</div>
-          <div className="stat-label">Ideas Shared</div>
-        </div>
-        <div className="stat-card">
-          <Award className="stat-icon" />
-          <div className="stat-value">{upvotesGiven}</div>
-          <div className="stat-label">Upvotes Given</div>
-        </div>
-      </div>
-
-      <div className="badges-section">
-        <h2 className="section-title">
-          <Trophy className="section-icon" /> Badges Earned ({earnedBadges.length}/{badges.length})
-        </h2>
-        <div className="badges-grid">
-          {badges.map(badge => (
-            <div key={badge.id} className={`badge-card ${badge.earned ? 'earned' : 'locked'}`}>
-              <Award className="badge-icon" />
-              <div className="badge-name">{badge.name}</div>
-              <div className="badge-desc">{badge.description}</div>
-            </div>
-          ))}
-        </div>
-      </div>
-
-
-
+      {/* Completed Phases */}
       <div className="phases-section">
-        <h2 className="section-title">Completed Phases</h2>
-        <div className="phases-list">
-          {completedPhases.length > 0 ? completedPhases.map((phase, idx) => (
-            <div key={idx} className="phase-item">
-              <Target className="phase-icon" />
-              <span className="phase-name">{phase}</span>
-            </div>
-          )) : (
-            <p className="no-phases">No phases completed yet. Start your journey!</p>
-          )}
+        <div className="section-header">
+          <Target size={20} />
+          <h3>Completed Phases</h3>
         </div>
+        
+        {completedPhases.length > 0 ? (
+          <div className="phases-grid">
+            {completedPhases.map((phase, index) => (
+              <div key={index} className="phase-card completed">
+                <div className="phase-icon">
+                  <CheckCircle size={20} />
+                </div>
+                <div className="phase-info">
+                  <h4>{phase.name}</h4>
+                  <p>Completed on {phase.completedAt}</p>
+                </div>
+              </div>
+            ))}
+          </div>
+        ) : (
+          <div className="no-phases">
+            <p>No phases completed yet. Start your journey!</p>
+          </div>
+        )}
       </div>
 
-      {/* MetaMask Guide Modal */}
+      {/* Username Update Form */}
+      {showUsernameForm && (
+        <div className="username-form-overlay">
+          <div className="username-form">
+            <h3>Update Username</h3>
+            <input
+              type="text"
+              value={newUsername}
+              onChange={(e) => setNewUsername(e.target.value)}
+              placeholder="Enter new username"
+              className="username-input"
+            />
+            <div className="form-actions">
+              <button onClick={handleSetUsername} disabled={loading} className="save-btn">
+                {loading ? 'Saving...' : 'Save'}
+              </button>
+              <button onClick={() => setShowUsernameForm(false)} className="cancel-btn">
+                Cancel
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* MetaMask Guide */}
       {showMetaMaskGuide && (
         <MetaMaskGuide onClose={() => setShowMetaMaskGuide(false)} />
       )}
+
+      {/* Error and Success Messages */}
+      {error && (
+        <div className="error-message">
+          <AlertCircle size={16} />
+          <span>{error}</span>
+        </div>
+      )}
+      
+      {success && (
+        <div className="success-message">
+          <CheckCircle size={16} />
+          <span>{success}</span>
+        </div>
+      )}
+
+      {/* Help Section */}
+      <div className="help-section">
+        <button onClick={() => setShowMetaMaskGuide(true)} className="help-btn">
+          <HelpCircle size={16} />
+          MetaMask Setup Guide
+        </button>
+      </div>
     </div>
   );
 };

@@ -1,8 +1,9 @@
 // PhaseContent.jsx
 import { useState } from "react";
 import { CheckCircle, Clock, Target, Users, DollarSign, MessageSquare, TrendingUp, Send } from "lucide-react";
+import AchievementClaim from "./AchievementClaim";
 
-const PhaseContent = ({ phase, phaseData, onMarkPhaseComplete, onTaskComplete }) => {
+const PhaseContent = ({ phase, phaseData, onMarkPhaseComplete, onTaskComplete, user }) => {
   const [taskInputs, setTaskInputs] = useState({});
   const [selectedTypes, setSelectedTypes] = useState({});
   const [showSuccessMessage, setShowSuccessMessage] = useState(null);
@@ -40,6 +41,19 @@ const PhaseContent = ({ phase, phaseData, onMarkPhaseComplete, onTaskComplete })
   // Only enable the button if progress is 100%
   const canMarkComplete = allTasksCompleted && phaseData && phaseData.progress === 100;
 
+  // Map phase names to IDs for badge system
+  const phaseIdMap = {
+    'ideation': 1,
+    'validation': 2,
+    'mvp': 2,
+    'launch': 3,
+    'feedback': 3,
+    'monetization': 3,
+    'scale': 3
+  };
+
+  const currentPhaseId = phaseIdMap[phase];
+
   return (
     <div className="phasecontent-container">
       {/* Header */}
@@ -55,6 +69,15 @@ const PhaseContent = ({ phase, phaseData, onMarkPhaseComplete, onTaskComplete })
 
       {showSuccessMessage && (
         <div className="success-message">{showSuccessMessage}</div>
+      )}
+
+      {/* Achievement Claim Component */}
+      {currentPhaseId && (
+        <AchievementClaim 
+          phaseId={currentPhaseId} 
+          phaseName={content.title} 
+          user={user}
+        />
       )}
 
       {/* Tasks */}
@@ -99,82 +122,80 @@ const PhaseContent = ({ phase, phaseData, onMarkPhaseComplete, onTaskComplete })
                       const file = e.target.files[0];
                       setTaskInputs(prev => ({ ...prev, [`pdf-${idx}`]: file }));
                     }}
-                    className="task-input-file"
+                    className="task-input"
+                    accept=".pdf,.doc,.docx"
                   />
-                  {pdfFile && !isSubmitted && (
-                    <div className="pdf-preview">Selected: {pdfFile.name}</div>
-                  )}
                   <button
                     onClick={() => handleTaskSubmit(idx, taskName, pdfFile)}
                     disabled={!pdfFile || isSubmitted}
                     className="btn-submit"
                   >
-                    <Send size={16} /> {isSubmitted ? 'Completed' : 'Upload File'}
+                    <Send size={16} /> {isSubmitted ? 'Completed' : 'Submit Task'}
                   </button>
-                  {isSubmitted && pdfFile && (
-                    <div className="pdf-preview">Uploaded: {pdfFile.name}</div>
-                  )}
                 </>
               );
             }
           };
+
           return (
-            <div key={idx} className="task-card">
+            <div key={idx} className={`task-item ${isSubmitted ? 'completed' : ''}`}>
               <div className="task-header">
-                <div className={isSubmitted ? 'task-icon-completed' : 'task-icon'}>
-                  {isSubmitted ? <CheckCircle size={16} /> : <CheckCircle size={16} />}  
+                <div className="task-info">
+                  <h3>{taskName}</h3>
+                  {submissionOptions.length > 1 && (
+                    <div className="submission-type-selector">
+                      {submissionOptions.map(type => (
+                        <button
+                          key={type}
+                          onClick={() => handleTypeChange(type)}
+                          className={`type-btn ${selectedType === type ? 'active' : ''}`}
+                        >
+                          {type === 'form' ? 'Text' : 'File'}
+                        </button>
+                      ))}
+                    </div>
+                  )}
                 </div>
-                <h3 className="task-title">{taskName}</h3>
+                {isSubmitted && <CheckCircle className="task-complete-icon" />}
               </div>
-              {submissionOptions.length > 1 && !isSubmitted && (
-                <div className="submission-type-toggle">
-                  <button
-                    className={selectedType === 'form' ? 'active' : ''}
-                    onClick={() => handleTypeChange('form')}
-                    type="button"
-                  >Form</button>
-                  <button
-                    className={selectedType === 'file' ? 'active' : ''}
-                    onClick={() => handleTypeChange('file')}
-                    type="button"
-                  >File</button>
-                </div>
-              )}
-              {renderSubmission()}
+              {!isSubmitted && renderSubmission()}
             </div>
           );
         })}
       </div>
 
-      {/* Tips */}
-      <div className="tips-section">
-        <h2>Tips & Best Practices</h2>
-        <div className="tips-grid">
-          {content.tips.map((tip, idx) => (
-            <div key={idx} className="tip-card">
-              <p>{tip}</p>
-            </div>
-          ))}
+      {/* Tips Section */}
+      {content.tips && content.tips.length > 0 && (
+        <div className="tips-section">
+          <h2>Tips & Resources</h2>
+          <div className="tips-grid">
+            {content.tips.map((tip, idx) => (
+              <div key={idx} className="tip-card">
+                <h4>{tip.title}</h4>
+                <p>{tip.content}</p>
+                {tip.link && (
+                  <a href={tip.link} target="_blank" rel="noopener noreferrer" className="tip-link">
+                    Learn More →
+                  </a>
+                )}
+              </div>
+            ))}
+          </div>
         </div>
-      </div>
+      )}
 
-      {/* Actions */}
-      <div className="actions-section">
-        <button
-          className="btn-quest"
-          disabled={!canMarkComplete}
-          onClick={() => {
-            if (canMarkComplete && typeof onMarkPhaseComplete === 'function') {
-              onMarkPhaseComplete(phase);
-            }
-          }}
-        >
-          Mark Phase Complete
-        </button>
-        <button className="btn-help">Get Help</button>
-      </div>
-
-
+      {/* Complete Phase Button */}
+      {canMarkComplete && (
+        <div className="complete-phase-section">
+          <button
+            onClick={() => onMarkPhaseComplete(phase)}
+            className="complete-phase-btn"
+          >
+            <CheckCircle size={20} />
+            Mark Phase Complete
+          </button>
+        </div>
+      )}
     </div>
   );
 };

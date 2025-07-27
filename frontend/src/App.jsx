@@ -1,9 +1,16 @@
 import { useState, useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import { WagmiProvider } from 'wagmi';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { Toaster } from 'react-hot-toast';
+import { config } from './ethereum/wagmiConfig';
 import Index from './pages/Index';
 import AuthPage from './components/AuthPage';
 import { apiService } from './services/api';
 import './index.css';
+
+// Create a client
+const queryClient = new QueryClient();
 
 function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -59,18 +66,46 @@ function App() {
   }
 
   return (
-    <Router>
-      <div className="App">
-        {!isAuthenticated ? (
-          <AuthPage onAuthSuccess={handleAuthSuccess} />
-        ) : (
-          <Routes>
-            <Route path="/" element={<Index user={user} onLogout={handleLogout} />} />
-            <Route path="*" element={<Navigate to="/" replace />} />
-          </Routes>
-        )}
-      </div>
-    </Router>
+    <WagmiProvider config={config}>
+      <QueryClientProvider client={queryClient}>
+        <Router>
+          <div className="App">
+            {!isAuthenticated ? (
+              <AuthPage onAuthSuccess={handleAuthSuccess} />
+            ) : (
+              <Routes>
+                <Route path="/" element={<Index user={user} onLogout={handleLogout} />} />
+                <Route path="*" element={<Navigate to="/" replace />} />
+              </Routes>
+            )}
+          </div>
+        </Router>
+        <Toaster 
+          position="top-right"
+          toastOptions={{
+            duration: 4000,
+            style: {
+              background: '#363636',
+              color: '#fff',
+            },
+            success: {
+              duration: 3000,
+              iconTheme: {
+                primary: '#4ade80',
+                secondary: '#fff',
+              },
+            },
+            error: {
+              duration: 5000,
+              iconTheme: {
+                primary: '#ef4444',
+                secondary: '#fff',
+              },
+            },
+          }}
+        />
+      </QueryClientProvider>
+    </WagmiProvider>
   );
 }
 

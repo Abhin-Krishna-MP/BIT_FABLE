@@ -5190,3 +5190,603 @@ body {
 .character-sprite.tier-uncommon {
   filter: drop-shadow(0 0 4px rgba(16, 185, 129, 0.2));
 }
+
+/* NFT Badge System Styles */
+
+/* Achievement Claim Container */
+.achievement-claim-container {
+  margin: 2rem 0;
+  padding: 1.5rem;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  border-radius: 16px;
+  box-shadow: 0 8px 32px rgba(102, 126, 234, 0.3);
+  animation: achievementGlow 2s ease-in-out infinite alternate;
+}
+
+@keyframes achievementGlow {
+  0% { box-shadow: 0 8px 32px rgba(102, 126, 234, 0.3); }
+  100% { box-shadow: 0 12px 48px rgba(102, 126, 234, 0.5); }
+}
+
+.achievement-claim-card {
+  background: rgba(255, 255, 255, 0.95);
+  border-radius: 12px;
+  padding: 2rem;
+  text-align: center;
+  backdrop-filter: blur(10px);
+}
+
+.achievement-header {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.achievement-icon {
+  font-size: 2rem;
+  animation: bounce 1s ease-in-out infinite;
+}
+
+.achievement-header h3 {
+  margin: 0;
+  color: #1a1a1a;
+  font-size: 1.5rem;
+  font-weight: 700;
+}
+
+.achievement-content {
+  margin-bottom: 2rem;
+}
+
+.achievement-content p {
+  margin: 0.5rem 0;
+  color: #4a5568;
+  font-size: 1.1rem;
+  line-height: 1.6;
+}
+
+.achievement-actions {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+}
+
+.claim-button {
+  background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+  color: white;
+  border: none;
+  padding: 1rem 2rem;
+  border-radius: 50px;
+  font-size: 1.1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 15px rgba(245, 87, 108, 0.3);
+}
+
+.claim-button:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(245, 87, 108, 0.4);
+}
+
+.claim-button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.wallet-notice {
+  color: #e53e3e;
+  font-size: 0.9rem;
+  margin: 0;
+}
+
+.achievement-claimed {
+  background: linear-gradient(135deg, #4ade80 0%, #22c55e 100%);
+  border-radius: 12px;
+  padding: 1.5rem;
+  text-align: center;
+  color: white;
+}
+
+.achievement-badge {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+}
+
+.badge-icon {
+  font-size: 2rem;
+  animation: sparkle 2s ease-in-out infinite;
+}
+
+.badge-info h4 {
+  margin: 0 0 0.5rem 0;
+  font-size: 1.2rem;
+}
+
+.badge-info p {
+  margin: 0;
+  opacity: 0.9;
+}
+
+/* NFT Badges Section */
+.nft-badges-section {
+  margin: 2rem 0;
+  padding: 2rem;
+  background: var(--card);
+  border-radius: 16px;
+  border: 1px solid var(--border);
+}
+
+.nft-badges-section .section-header {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-bottom: 1.5rem;
+}
+
+.nft-badges-section .section-header h3 {
+  margin: 0;
+  color: var(--foreground);
+  font-size: 1.25rem;
+  font-weight: 600;
+}
+
+.nft-badges-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 1.5rem;
+}
+
+.nft-badge-card {
+  background: var(--card);
+  border: 2px solid var(--border);
+  border-radius: 12px;
+  padding: 1.5rem;
+  transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.nft-badge-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: linear-gradient(90deg, #667eea, #764ba2, #f093fb, #f5576c);
+  background-size: 200% 100%;
+  animation: gradientShift 3s ease-in-out infinite;
+}
+
+@keyframes gradientShift {
+  0%, 100% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+}
+
+.nft-badge-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+  border-color: var(--primary);
+}
+
+.badge-image {
+  width: 80px;
+  height: 80px;
+  margin: 0 auto 1rem;
+  border-radius: 50%;
+  overflow: hidden;
+  background: linear-gradient(135deg, #667eea, #764ba2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.badge-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.badge-info h4 {
+  margin: 0 0 0.5rem 0;
+  color: var(--foreground);
+  font-size: 1.1rem;
+  font-weight: 600;
+  text-align: center;
+}
+
+.badge-info p {
+  margin: 0;
+  color: var(--muted-foreground);
+  font-size: 0.9rem;
+  text-align: center;
+  line-height: 1.5;
+}
+
+.loading-badges {
+  text-align: center;
+  padding: 2rem;
+  color: var(--muted-foreground);
+  font-style: italic;
+}
+
+.no-nft-badges {
+  text-align: center;
+  padding: 2rem;
+  color: var(--muted-foreground);
+}
+
+.no-nft-badges p {
+  margin: 0;
+  font-size: 1rem;
+}
+
+/* Profile Updates for NFT Badges */
+.profile-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 2rem;
+}
+
+.profile-header {
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+  margin-bottom: 2rem;
+  padding: 2rem;
+  background: var(--card);
+  border-radius: 16px;
+  border: 1px solid var(--border);
+}
+
+.profile-avatar {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #667eea, #764ba2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 2rem;
+}
+
+.profile-info h1 {
+  margin: 0 0 0.5rem 0;
+  color: var(--foreground);
+  font-size: 1.75rem;
+  font-weight: 700;
+}
+
+.profile-info p {
+  margin: 0;
+  color: var(--muted-foreground);
+  font-size: 1rem;
+}
+
+.xp-section {
+  margin-bottom: 2rem;
+}
+
+.ethereum-section {
+  margin-bottom: 2rem;
+  padding: 1.5rem;
+  background: var(--card);
+  border-radius: 12px;
+  border: 1px solid var(--border);
+}
+
+.ethereum-header {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-bottom: 1rem;
+}
+
+.ethereum-header h3 {
+  margin: 0;
+  color: var(--foreground);
+  font-size: 1.1rem;
+  font-weight: 600;
+}
+
+.connection-status {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem;
+  border-radius: 8px;
+  margin-bottom: 1rem;
+}
+
+.connection-status.connected {
+  background: rgba(34, 197, 94, 0.1);
+  color: #22c55e;
+}
+
+.connection-status.disconnected {
+  background: rgba(239, 68, 68, 0.1);
+  color: #ef4444;
+}
+
+.connect-btn {
+  background: var(--primary);
+  color: white;
+  border: none;
+  padding: 0.5rem 1rem;
+  border-radius: 6px;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.connect-btn:hover:not(:disabled) {
+  background: var(--primary-hover);
+}
+
+.blockchain-actions {
+  display: flex;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+.action-btn {
+  background: var(--secondary);
+  color: var(--foreground);
+  border: 1px solid var(--border);
+  padding: 0.5rem 1rem;
+  border-radius: 6px;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.action-btn:hover:not(:disabled) {
+  background: var(--secondary-hover);
+}
+
+.section-header {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-bottom: 1.5rem;
+}
+
+.section-header h3 {
+  margin: 0;
+  color: var(--foreground);
+  font-size: 1.25rem;
+  font-weight: 600;
+}
+
+.badges-section,
+.phases-section {
+  margin-bottom: 2rem;
+  padding: 1.5rem;
+  background: var(--card);
+  border-radius: 12px;
+  border: 1px solid var(--border);
+}
+
+.badges-grid,
+.phases-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+  gap: 1rem;
+}
+
+.badge-card,
+.phase-card {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 1rem;
+  border-radius: 8px;
+  border: 1px solid var(--border);
+  transition: all 0.2s ease;
+}
+
+.badge-card.earned,
+.phase-card.completed {
+  background: rgba(34, 197, 94, 0.1);
+  border-color: #22c55e;
+}
+
+.badge-icon,
+.phase-icon {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: var(--secondary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--foreground);
+}
+
+.badge-info h4,
+.phase-info h4 {
+  margin: 0 0 0.25rem 0;
+  color: var(--foreground);
+  font-size: 1rem;
+  font-weight: 600;
+}
+
+.badge-info p,
+.phase-info p {
+  margin: 0;
+  color: var(--muted-foreground);
+  font-size: 0.9rem;
+}
+
+.no-badges,
+.no-phases {
+  text-align: center;
+  padding: 2rem;
+  color: var(--muted-foreground);
+}
+
+.username-form-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.username-form {
+  background: var(--card);
+  padding: 2rem;
+  border-radius: 12px;
+  border: 1px solid var(--border);
+  min-width: 300px;
+}
+
+.username-form h3 {
+  margin: 0 0 1rem 0;
+  color: var(--foreground);
+  font-size: 1.25rem;
+  font-weight: 600;
+}
+
+.username-input {
+  width: 100%;
+  padding: 0.75rem;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  font-size: 1rem;
+  margin-bottom: 1rem;
+  background: var(--background);
+  color: var(--foreground);
+}
+
+.username-input:focus {
+  outline: none;
+  border-color: var(--primary);
+}
+
+.form-actions {
+  display: flex;
+  gap: 0.75rem;
+}
+
+.save-btn,
+.cancel-btn {
+  flex: 1;
+  padding: 0.75rem;
+  border-radius: 6px;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.save-btn {
+  background: var(--primary);
+  color: white;
+  border: none;
+}
+
+.save-btn:hover:not(:disabled) {
+  background: var(--primary-hover);
+}
+
+.cancel-btn {
+  background: var(--secondary);
+  color: var(--foreground);
+  border: 1px solid var(--border);
+}
+
+.cancel-btn:hover {
+  background: var(--secondary-hover);
+}
+
+.error-message,
+.success-message {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 1rem;
+  border-radius: 8px;
+  margin-bottom: 1rem;
+  font-size: 0.9rem;
+}
+
+.error-message {
+  background: rgba(239, 68, 68, 0.1);
+  color: #ef4444;
+  border: 1px solid rgba(239, 68, 68, 0.2);
+}
+
+.success-message {
+  background: rgba(34, 197, 94, 0.1);
+  color: #22c55e;
+  border: 1px solid rgba(34, 197, 94, 0.2);
+}
+
+.help-section {
+  text-align: center;
+  margin-top: 2rem;
+}
+
+.help-btn {
+  background: var(--secondary);
+  color: var(--foreground);
+  border: 1px solid var(--border);
+  padding: 0.75rem 1.5rem;
+  border-radius: 6px;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.help-btn:hover {
+  background: var(--secondary-hover);
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .profile-header {
+    flex-direction: column;
+    text-align: center;
+  }
+  
+  .nft-badges-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .badges-grid,
+  .phases-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .blockchain-actions {
+    flex-direction: column;
+  }
+  
+  .form-actions {
+    flex-direction: column;
+  }
+  
+  .achievement-claim-card {
+    padding: 1.5rem;
+  }
+  
+  .achievement-header {
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+}
